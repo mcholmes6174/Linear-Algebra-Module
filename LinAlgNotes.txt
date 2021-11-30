@@ -1,0 +1,9 @@
+Improvements for Guassian Elimation Code:
+
+1) How to pass 2D array into function w/ general size?
+   e.g., pass into showMatrix(), pivotElim(), and backSub().
+
+2) Dynamically allocate arrays s.t. user can choose system size at
+   runtime & array size can be larger.
+  -> this causes arrays not to be able to passed into functions b/c
+     2nd size is required
