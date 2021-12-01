@@ -1,12 +1,14 @@
 #include "Constants.h"
+#include "Types.h"
+#include <vector>
 
 #ifndef CONJUGATE_GRAD
 #define CONJUGATE_GRAD
 
-void basicCG(       const double A[][consts::n], const double b[], double x[]);
+void basicCG(       const mat_t& A, const vec_t& b, vec_t& x);
 
-void smartCG(       const double A[][consts::n], const double b[], double x[]);
+void smartCG(       const mat_t& A, const vec_t& b, vec_t& x);
 
-void smartPreCondCG(const double A[][consts::n], const double b[], double x[]);
+void smartPreCondCG(const mat_t& A, const vec_t& b, vec_t& x);
 
 #endif

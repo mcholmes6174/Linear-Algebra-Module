@@ -10,46 +10,51 @@
  */
 #include "GaussianElim.h"
 #include "LinAlgTools.h"
+#include "Types.h"
 #include <cmath>
+#include <vector>
 
-void pivotElim(double mat_A[][consts::n], double vec_b[],
-               const int m, const int n) {
+void pivotElim(mat_t& A, vec_t& b) {
+  // get size of system
+  int m{std::size(A)};
+  int n{std::size(A[0])};
   // loop over all columns (func. terminates at end of this loop)
   for (int j{}; j<n; ++j) {
     // search for better pivot (p) than current pivot (j)
     int p{j}; // index of pivot row
     for (int k{j+1}; k<m; ++k) {
-      if (std::abs(mat_A[k][j]) > std::abs(mat_A[p][j])) p = k;
+      if (std::abs(A[k][j]) > std::abs(A[p][j])) p = k;
     }
     // if better pivot (p) is found, then swap rows j and p IN ENTIRE SYSTEM
-    if (p != j) tools::swapRows(mat_A,vec_b,j,p);
+    if (p != j) tools::swapRows(A,b,j,p);
     // if pivot is still zero, then matrix must be singular
-    tools::catchSingular(mat_A[j][j]);
+    tools::catchSingular(A[j][j]);
     // if pivot is nonzero, then we loop over rows below row j
     for (int i{j+1}; i<m; ++i) {
       // for each row, we perform the Guassian Elimination row operation
-      double scalar{ mat_A[i][j]/mat_A[j][j] };
+      double scalar{ A[i][j]/A[j][j] };
       for (int k{}; k<n; ++k) {
-        mat_A[i][k] -= mat_A[j][k] * scalar;
+        A[i][k] -= A[j][k] * scalar;
       }
       // repreat the row operation to vector b to ensure an equivalent system
-      vec_b[i] -= vec_b[j] * scalar;
+      b[i] -= b[j] * scalar;
     }
   }
 }
 
-void backSub(const double mat_U[][consts::n],
-             const double vec_y[], double vec_x[],
-             const int m, const int n) {
+void backSub(const mat_t& U, const vec_t& y, vec_t& x) {
+  // get size of system
+  int m{std::size(U)};
+  int n{std::size(U[0])};
   // loop over the rows, bottom to top, computing the entries x[i]
   for (int i{m-1}; i>=0; --i) {
     // test for singularity
-    tools::catchSingular(mat_U[i][i]);
+    tools::catchSingular(U[i][i]);
     // Take the sum of products in row i of Ux=y for j > i to solve for x[i]
     double sum{0.0};
     for (int j{i+1}; j<n; ++j) {
-      sum += mat_U[i][j] * vec_x[j];
+      sum += U[i][j] * x[j];
     }
-    vec_x[i] = (vec_y[i] - sum)/mat_U[i][i];
+    x[i] = (y[i] - sum)/U[i][i];
   }
 }

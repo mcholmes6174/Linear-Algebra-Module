@@ -1,48 +1,48 @@
 #include "Constants.h" // for consts::XXX user-defined namespace
+#include "Types.h"
 #include <string>
+#include <vector>
 
 #ifndef LIN_ALG_TOOLS
 #define LIN_ALG_TOOLS
 
 namespace tools {
 
-  void catchSingular(const double value);
+  void catchFileError(const std::string filename, const bool open_failed);
 
-  void checkSymm(const double A[][consts::n], const int m=consts::m);
+  void catchSingular(const double);
 
-  void diagPreCond(const double M[][consts::n], const double r[], double z[],
-                   const int m=consts::m);
+  void checkSymm(const mat_t&);
 
-  void getError(const double A[][consts::n], const double   x[],
-                const double b[],                  double err[],
-                const int m=consts::m, const int n=consts::n);
+  vec_t diagPreCond(const mat_t&, const vec_t&);
 
-  double getNorm(const double x[], const int m=consts::m);
+  vec_t getError(const mat_t&, const vec_t&, const vec_t&);
 
-  double innerProd(const double x[], const double y[], const int m=consts::m);
+  double getNorm(const vec_t&);
 
-  void matMul(const double A[][consts::n], const double B[][consts::n],
-                    double C[][consts::n], const int m=consts::m,
-                                           const int n=consts::n);
+  double innerProd(const vec_t&, const vec_t&);
 
-  void makeVecCopy(double x_copy[], const double x[], const int m=consts::m);
+  mat_t matMul(const mat_t&, const mat_t&);
 
-  void matVecMul(const double A[][consts::n], const double x[], double y[],
-                 const int m=consts::m, const int n=consts::n);
+  vec_t makeVecCopy(const vec_t&);
 
-  void readMatrix(const std::string filename, double A[][consts::n],
-                  const int m=consts::m, const int n=consts::n);
+  vec_t matVecMul(const mat_t&, const vec_t&);
 
-  void showMatrix(const double A[][consts::n], const int m=consts::m,
-                                               const int n=consts::n);
+  mat_t readMatrix(const std::string);
 
-  void showVector(const double x[], const int m=consts::m);
+  int readNthVal(const std::string, const int);
 
-  void swapRows(double A[][consts::n], double b[],
-                const int row1, const int row2, const int n=consts::n);
+  vec_t readVector(const std::string);
 
-  void writeVector(const std::string filename, const double x[],
-                                               const int m=consts::m);
+  void showMatrix(const mat_t&);
+
+  void showVector(const vec_t&);
+
+  void swapRows(mat_t&, vec_t&, const int, const int);
+
+  void writeMatrix(const std::string, const mat_t&);
+
+  void writeVector(const std::string, const vec_t&);
 
 }
 

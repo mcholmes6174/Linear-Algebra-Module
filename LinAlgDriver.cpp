@@ -15,8 +15,10 @@
 #include "ConjugateGrad.h" // for Conjugate Gradient and GMRES routines
 #include "GaussianElim.h"  // for Gaussian Elimination routines
 #include "LinAlgTools.h"   // for tools:: in user-defined namespace
-#include <string>          // for std::string
+#include "Types.h"         // for type aliases mat_t and vec_t
 #include <iostream>        // for std::cout and std::cin
+#include <string>          // for std::string
+#include <vector>          // for std::vector (dynamic array functionality)
 
 int listMethods() {
   // this function lists each of the methods we have available in the module,
@@ -68,30 +70,31 @@ int askMethodChoice() {
   return user_input;
 }
 
-void generateSystem(double A[][consts::n], double A_fixed[][consts::n],
-                    double b[],            double b_fixed[], double fill) {
+void generateSystem(int m, int n) {
+  mat_t A(m,vec_t(n));
+  vec_t b(n);
+  double fill{1.0};
   // fill the arrays with nonzero values
-  for (int i{}; i < consts::m; ++i) {
-    for (int j{}; j < consts::n; ++j) {
+  for (int i{}; i < m; ++i) {
+    for (int j{}; j < n; ++j) {
       // to handle the main diagonal differently than off-diagonal
       switch (i==j) {
         case true: {
           // we create an ascending diagonal: diag(A)=[1,2,3,4,...,m]
           A      [i][j] = i+1;
-          A_fixed[i][j] = i+1;
           b      [i]    = i+1;
-          b_fixed[i]    = i+1;
           break;
         }
         default: {
           // we set the off-diagonal to be constant: off_diag(A)=fill
           A      [i][j] = fill;
-          A_fixed[i][j] = fill;
           break;
         }
       }
     }
   }
+  tools::writeMatrix("matrix_A_CG.dat",A);
+  tools::writeVector("vector_b_CG.dat",b);
 }
 
 int main() {
@@ -100,27 +103,32 @@ int main() {
   cout << "\nWelcome to the Linear Algebra Module.";
   cout << "\nHere we will solve a square linear system Ax=b.\n";
 
-  // read in matrix from file
-  // double test[consts::m][consts::n]{};
-  // tools::readMatrix("matrix_A.dat",test);
-  // tools::showMatrix(test);
-  // std::exit(0);
+  // create file with CG system
+  generateSystem(10,10);
 
-  // declare fixed 2D array A and fixed 1D array b for the system Ax=b
-  // Two instances of each will be created: one is to be altered during
-  // computation, while the other is to later verify the result
-  double A      [consts::m][consts::n]{};
-  double A_fixed[consts::m][consts::n]{};
-  double b      [consts::m]{};
-  double b_fixed[consts::m]{};
-  double fill{1};
-  generateSystem(A,A_fixed,b,b_fixed,fill);
+  // set filename of matrix A and vector b to be used in system
+  std::string filename_A{"matrix_A.dat"};
+  std::string filename_b{"vector_b.dat"};
 
+  // read in matrix size from file
+  int m{ tools::readNthVal(filename_A,0) };
+  int n{ tools::readNthVal(filename_A,1) };
+
+  // report the size of the matrix to the user
+  cout << "\nThe matrix contained in file " << filename_A
+       << " has size " << m << " by " << n << '\n';
+
+  // dynamically allocate m by n array and initialize using readMatrix()
+  mat_t A(m,vec_t(n));
+  A = tools::readMatrix(filename_A);
+  // dynamically allocate vector of length m and initialize using readVector()
+  vec_t b(m);
+  b = tools::readVector(filename_b);
   // declare and zero-initialize the solution vector x
-  double x[consts::m]{};
+  vec_t x(m);
 
   // show the original system to the user if small enough
-  bool small_system{consts::m <= 8};
+  bool small_system{std::max(m,n) <= 8};
   if (small_system) {
     cout << "\nHere is the matrix A:";
     tools::showMatrix(A);
@@ -179,13 +187,15 @@ int main() {
   // write solution vector to file
   tools::writeVector("x_soln.dat",x);
 
+  // re-read system in order to compute error
+  A = tools::readMatrix(filename_A);
+  b = tools::readVector(filename_b);
+
   // compute and show the error Ax-b to verify solution
-  double err[consts::m]{};
-  tools::getError(A_fixed,x,b_fixed,err);
-  double norm{};
-  norm = tools::getNorm(err);
-  cout << "\nThe Euclidean norm of the error vector err = Ax-b given by:";
-  cout << '\n' << norm << '\n';
+  vec_t err(m);
+  err = tools::getError(A,x,b);
+  cout << "\nThe Euclidean norm of the error vector err = Ax-b is given by:";
+  cout << '\n' << tools::getNorm(err) << '\n';
 
   cout << "\nGoodbye\n";
   cout << "*******************************************************************";
