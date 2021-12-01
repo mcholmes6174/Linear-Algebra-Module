@@ -3,10 +3,17 @@
 #include <string>
 #include <vector>
 
-#ifndef LIN_ALG_TOOLS
-#define LIN_ALG_TOOLS
+#ifndef LIN_ALG_TLK
+#define LIN_ALG_TLK
 
-namespace tools {
+/* References used as function parameters (e.g., mat_t&) allow us to avoid
+ * making a copy of the argument being passed, and allows the argument to be
+ * modified within the function. If a reference is passed as a constant (e.g.,
+ * const mat_t&), then the argument is still accessed directly, but is
+ * guaranteed not to be modified within the function.
+*/
+
+namespace tlk {
 
   void catchFileError(const std::string filename, const bool open_failed);
 
@@ -30,7 +37,7 @@ namespace tools {
 
   mat_t readMatrix(const std::string);
 
-  int readNthVal(const std::string, const int);
+  size_t readNthVal(const std::string, const int);
 
   vec_t readVector(const std::string);
 
@@ -38,7 +45,7 @@ namespace tools {
 
   void showVector(const vec_t&);
 
-  void swapRows(mat_t&, vec_t&, const int, const int);
+  void swapRows(mat_t&, vec_t&, const size_t, const size_t);
 
   void writeMatrix(const std::string, const mat_t&);
 
