@@ -1,37 +1,57 @@
 /* Written by Matthew Holmes
- * November 2021
+ * December 2021
  *
  * This program is the driver for my first significant C++ code. The driver
- * calls routines defined in the GuassianElim.cpp, ConjugateGrad.cpp, Inout.cpp,
- * and GMRES.cpp files in order to solve a square linear system Ax=b using a
- * method chosen by the user at runtime.
+ * calls routines defined in the following files:
  *
- * In addition to printing the solution to the screen, this program writes the
- * solution vector to a file named x_soln.dat. Routines from the LinAlgTools.cpp
- * file are called often to perform common operations and I/O procedures.
+ * ConjugateGrad.cpp
+ * GuassianElim.cpp
+ * GMRES.cpp
+ * Inout.cpp
+ * LinAlgToolkit.cpp
+ *
+ * in order to solve a square linear system Ax=b using a method chosen by the
+ * user at runtime. The matrix A and vector b that define the system are to be
+ * read in from two separate files (e.g., mat_A.dat and vec_b.dat). The names
+ * of these two files may be provided by the user as command line arguments, but
+ * if omited, the program will then prompt the user to enter the filenames.
+ * After reading in the contents from the two files, the program prompts the user
+ * to choose a numerical method to apply. Once a selection is made, the program
+ * shows the results and writes the solution vector to a file named x_soln.dat.
  *
  */
-#include "ConjugateGrad.h" // for Conjugate Gradient and GMRES routines
-#include "GaussianElim.h"  // for Gaussian Elimination routines
-#include "LinAlgToolkit.h" // for tlk:: in user-defined namespace
-#include "InOut.h"         // for io::  in user-defined namespace
-#include "Types.h"         // for type aliases mat_t and vec_t
-#include <iostream>        // for std::cout and std::cin
-#include <string>          // for std::string
-#include <vector>          // for std::vector (dynamic array functionality)
+#include "ConjugateGrad.h" // Conjugate-Gradient routines
+#include "GaussianElim.h"  // Gaussian Elimination routines
+#include "LinAlgToolkit.h" // tlk:: routines in user-defined namespace
+#include "InOut.h"         // io::  routines in user-defined namespace
+#include "Types.h"         // type aliases mat_t and vec_t for std::vector
+#include <iostream>        // std::cout and std::cin
+#include <string>          // std::string
+#include <vector>          // std::vector (dynamic array functionality)
 
-int main() {
+int main(int argc, char* argv[]) { // command line args will be 2 filenames
   using std::cout;
   cout << "*******************************************************************";
   cout << "\nWelcome to the Linear Algebra Module.";
   cout << "\nHere we will solve a square linear system Ax=b.\n";
 
-  // to create files containing a symmetric system for us in CG method
+  // to create files containing a symmetric system for future use in CG method
   // inout::generateSymmSystem(100,100);
 
-  // ask user to specify filename of matrix A and vector b to be used in system
-  std::string filename_A{ inout::askFileChoice('A') };
-  std::string filename_b{ inout::askFileChoice('b') };
+  // check for command line arguments
+  std::string filename_A{};
+  std::string filename_b{};
+  if (argc < 2) {
+    // if not provided, ask user to specify filename of matrix A
+    // and vector b to be used in system
+    filename_A = inout::askFileChoice('A');
+    filename_b = inout::askFileChoice('b');
+  }
+  else {
+    // otherwise, use command line arguments
+    filename_A = argv[1];
+    filename_b = argv[2];
+  }
 
   // read in matrix size from file
   size_t m{ tlk::readNthVal(filename_A,0) };
@@ -39,10 +59,10 @@ int main() {
 
   // dynamically allocate m by n array and initialize using readMatrix()
   mat_t A(m,vec_t(n));
-  A = tlk::readMatrix(filename_A);
+  tlk::readMatrix(filename_A,A);
   // dynamically allocate vector of length m and initialize using readVector()
   vec_t b(m);
-  b = tlk::readVector(filename_b);
+  tlk::readVector(filename_b,b);
   // declare and zero-initialize the solution vector x
   vec_t x(m);
 
@@ -111,12 +131,12 @@ int main() {
   tlk::writeVector("x_soln.dat",x);
 
   // re-read system in order to compute error
-  A = tlk::readMatrix(filename_A);
-  b = tlk::readVector(filename_b);
+  tlk::readMatrix(filename_A,A);
+  tlk::readVector(filename_b,b);
 
   // compute and show the error Ax-b to verify solution
   vec_t err(m);
-  err = tlk::getError(A,x,b);
+  tlk::getError(A,x,b,err);
   cout << "\nThe Euclidean norm of the error vector err = Ax-b is given by:";
   cout << '\n' << tlk::getNorm(err) << '\n';
 

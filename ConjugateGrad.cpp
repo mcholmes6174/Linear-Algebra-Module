@@ -1,5 +1,5 @@
 /* Written by Matthew Holmes
- * November 2021
+ * December 2021
  *
  * This program contains all the routines necessary to perform
  *
@@ -11,7 +11,6 @@
  *
  * NOTE: The conjugate-gradient methods require the matrix A to
  *       be symmetric AND strictly positive-definite.
- *
  */
 #include "ConjugateGrad.h"
 #include "LinAlgToolkit.h"
@@ -22,8 +21,10 @@
 
 using std::size_t;
 
-vec_t updateVector(const vec_t vec1, const double scalar, const vec_t vec2) {
-  // this function returns the linear update x = vec1 + scalar*vec2
+vec_t updateVector(const vec_t& vec1, const double scalar, const vec_t& vec2) {
+  // This function returns the linear update x = vec1 + scalar*vec2.
+  // Here we choose to return by value (rather than pass x_OUT by reference) in
+  // order to increase readability.
   size_t m{vec1.size()};
   vec_t  x(m);
   for (size_t i{}; auto vec2_i : vec2) {
@@ -52,7 +53,7 @@ void testMaxIter(int num_iter, size_t max_iter, int step) {
   }
 }
 
-void basicCG(const mat_t& A, const vec_t& b, vec_t& x) {
+void basicCG(const mat_t& A, const vec_t& b, vec_t& x_OUT) {
   // this function executes the basic conjugate-gradient method
 
   // first, check that the matrix is symmetric
@@ -80,11 +81,11 @@ void basicCG(const mat_t& A, const vec_t& b, vec_t& x) {
 
     // store y = A*b to use in new residual and constant beta
     vec_t y(m);
-    y = tlk::matVecMul(A,p);
+    tlk::matVecMul(A,p,y);
     // calculate alpha to minimize obj. func. along direction p
     double alpha{ tlk::innerProd(p,r)/tlk::innerProd(p,y) };
     // update solution vector x
-    x = updateVector(x,alpha,p);
+    x_OUT = updateVector(x_OUT,alpha,p);
     // update residual vector to be
     // r = r - alpha*y = r - alpha*A*p = b - A*x - alpha*A*p = b - A*(x+alpha*p)
     r = updateVector(r,-alpha,y);
@@ -103,7 +104,7 @@ void basicCG(const mat_t& A, const vec_t& b, vec_t& x) {
   std::cout << "\nConvergence acheived in " << iter_counter << " iterations!\n";
 }
 
-void smartCG(const mat_t& A, const vec_t& b, vec_t& x) {
+void smartCG(const mat_t& A, const vec_t& b, vec_t& x_OUT) {
   // this function executes the smart conjugate-gradient method
 
   // first, check that the matrix is symmetric
@@ -131,11 +132,11 @@ void smartCG(const mat_t& A, const vec_t& b, vec_t& x) {
 
     // store y = A*b to use in new residual and constant beta
     vec_t y(m);
-    y = tlk::matVecMul(A,p);
+    tlk::matVecMul(A,p,y);
     // calculate alpha to minimize obj. func. along direction p
     double alpha{ rTr/tlk::innerProd(p,y) };
     // update solution vector x
-    x = updateVector(x,alpha,p);
+    x_OUT = updateVector(x_OUT,alpha,p);
     // update residual vector to be
     // r = r - alpha*y = r - alpha*A*p = b - A*x - alpha*A*p = b - A*(x+alpha*p)
     r = updateVector(r,-alpha,y);
@@ -156,7 +157,7 @@ void smartCG(const mat_t& A, const vec_t& b, vec_t& x) {
   std::cout << "\nConvergence acheived in " << iter_counter << " iterations!\n";
 }
 
-void smartPreCondCG(const mat_t& A, const vec_t& b, vec_t& x) {
+void smartPreCondCG(const mat_t& A, const vec_t& b, vec_t& x_OUT) {
   // this function executes the smart conjugate-gradient
   // method with pre-conditioning
 
@@ -172,7 +173,7 @@ void smartPreCondCG(const mat_t& A, const vec_t& b, vec_t& x) {
   r = tlk::makeVecCopy(b);
   // compute z using preconditoner matrix
   vec_t z(m);
-  z = tlk::diagPreCond(A,r);
+  tlk::diagPreCond(A,r,z);
   // initialize conjugate vector p
   vec_t p(m);
   p = tlk::makeVecCopy(z);
@@ -190,16 +191,16 @@ void smartPreCondCG(const mat_t& A, const vec_t& b, vec_t& x) {
 
     // store y = A*b to use in new residual and constant beta
     vec_t y(m);
-    y = tlk::matVecMul(A,p);
+    tlk::matVecMul(A,p,y);
     // calculate alpha to minimize obj. func. along direction p
     double alpha{ E/tlk::innerProd(p,y) };
     // update solution vector x
-    x = updateVector(x,alpha,p);
+    x_OUT = updateVector(x_OUT,alpha,p);
     // update residual vector to be
     // r = r - alpha*y = r - alpha*A*p = b - A*x - alpha*A*p = b - A*(x+alpha*p)
     r = updateVector(r,-alpha,y);
     // update z vector
-    z = tlk::diagPreCond(A,r);
+    tlk::diagPreCond(A,r,z);
     // update (residual norm)^2
     double E_new{tlk::innerProd(r,z)};
     // calculate beta to obtain next conjugate vector p

@@ -1,0 +1,21 @@
+This program is my first significant C++ code. The driver file LinAlgDriver.cpp
+calls routines defined in the secondary files:
+
+ConjugateGrad.cpp
+GuassianElim.cpp
+GMRES.cpp
+Inout.cpp
+LinAlgToolkit.cpp
+
+in order to solve a square linear system Ax=b using a method chosen by the
+user at runtime.
+
+The matrix A and vector b that define the system are to be read in from two
+separate files (e.g., mat_A.dat and vec_b.dat). The names of these two files may
+be provided by the user as command line arguments, but if omitted, the program
+will then prompt the user to enter the filenames.
+
+After reading in the contents from the two files, the program prompts the user
+to choose a numerical method to apply. Once a selection is made, the program
+executes the method, displays the results, and writes the solution vector to a
+file named x_soln.dat.

@@ -1,7 +1,7 @@
 /* Written by Matthew Holmes
- * November 2021
+ * December 2021
  *
- * This program contains the routines used in the initial I/O. This module was
+ * This program contains routines used in the initial I/O. This module was
  * created in order to remove clutter from the driver routine.
  *
  */
