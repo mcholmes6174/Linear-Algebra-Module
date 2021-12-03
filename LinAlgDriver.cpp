@@ -22,6 +22,7 @@
  */
 #include "ConjugateGrad.h" // Conjugate-Gradient routines
 #include "GaussianElim.h"  // Gaussian Elimination routines
+#include "GMRES.h"         // GMRES routines
 #include "LinAlgToolkit.h" // tlk:: routines in user-defined namespace
 #include "InOut.h"         // io::  routines in user-defined namespace
 #include "Types.h"         // type aliases mat_t and vec_t for std::vector
@@ -117,6 +118,7 @@ int main(int argc, char* argv[]) { // command line args will be 2 filenames
       break;
     }
     case method_GMRES: {
+      applyGMRES(A,b,x, inout::askSubspaceDim(m) );
       break;
     }
   }

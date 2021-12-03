@@ -124,17 +124,24 @@ namespace tlk {
 
   void matMul(const mat_t& A, const mat_t& B, mat_t C_OUT) {
     // this function performs the matrix multiplication C=AB.
-    for (size_t i{}; i < A.size();    ++i) {
-      for (size_t j{}; j < A[0].size(); ++j) {
-        for (size_t k{}; k < A[0].size(); ++k) {
+    if (A[0].size() != B.size()) {
+      std::cerr << "Error: Dimensions must be consistent for matMul()";
+      std::exit(0);
+    }
+    for (size_t i{}; i < A.size(); ++i) {
+      for (size_t j{}; j < B.size(); ++j) {
+        for (size_t k{}; k < B.size(); ++k) {
           C_OUT[i][j] += A[i][k] * B[k][j];
         }
       }
     }
   }
 
-  vec_t makeVecCopy(const vec_t& x) {
-    // this function returns a copy of the vector x.
+  vec_t makeVecCopy(const vec_t& x, const double scalar=1.0) {
+    // this function returns the vector x after optionally being scaled.
+    for (auto x_i : x) {
+      x_i = scalar*x_i;
+    }
     // we return by value here so that a copy is made automatically
     return x;
   }
@@ -145,6 +152,24 @@ namespace tlk {
       for (size_t j{}; auto x_j : x) {
         y_OUT[i] += A[i][j] * x_j;
         ++j;
+      }
+    }
+  }
+
+  void nthColumn(const std::string action, mat_t& A, vec_t& x, const size_t n) {
+    // This function either returns the nth column of a matrix as a vector or
+    // stores a vector in the nth column of the given matrix based on the value
+    // of the string "action".
+    if (action == "grab") {
+      for (size_t i{}; auto a_i : A) {
+        x[i] = a_i[n];
+        ++i;
+      }
+    }
+    else if (action == "give") {
+      for (size_t i{}; auto x_i : x) {
+        A[i][n] = x_i;
+        ++i;
       }
     }
   }
@@ -257,6 +282,32 @@ namespace tlk {
     placeholder = b_OUT[r1];
     b_OUT[r1]   = b_OUT[r2];
     b_OUT[r2]   = placeholder;
+  }
+
+  mat_t transpose(const mat_t& A) {
+    // This function returns the transpose of matrix A.
+    size_t m{    A.size() };
+    size_t n{ A[0].size() };
+    mat_t B(n,vec_t(m));
+    for (size_t i{}; i < n; ++i) {
+      for (size_t j{}; j < m; --j) {
+        B[i][j] = A[j][i];
+      }
+    }
+    return B;
+  }
+
+  vec_t updateVector(const vec_t& vec1, const double scalar, const vec_t& vec2) {
+    // This function returns the linear update x = vec1 + scalar*vec2.
+    // Here we choose to return by value (rather than pass x_OUT by reference)
+    // in order to increase readability.
+    size_t m{vec1.size()};
+    vec_t  x(m);
+    for (size_t i{}; auto vec2_i : vec2) {
+      x[i] = vec1[i] + scalar*vec2_i;
+      ++i;
+    }
+    return x;
   }
 
   void writeMatrix(const std::string filename, const mat_t& A) {

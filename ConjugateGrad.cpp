@@ -21,19 +21,6 @@
 
 using std::size_t;
 
-vec_t updateVector(const vec_t& vec1, const double scalar, const vec_t& vec2) {
-  // This function returns the linear update x = vec1 + scalar*vec2.
-  // Here we choose to return by value (rather than pass x_OUT by reference) in
-  // order to increase readability.
-  size_t m{vec1.size()};
-  vec_t  x(m);
-  for (size_t i{}; auto vec2_i : vec2) {
-    x[i] = vec1[i] + scalar*vec2_i;
-    ++i;
-  }
-  return x;
-}
-
 void testMaxIter(int num_iter, size_t max_iter, int step) {
   // this function checks whether the # of iterations executed in the
   // C-G method exceeds the theoretical maximum before convergence is
@@ -85,16 +72,16 @@ void basicCG(const mat_t& A, const vec_t& b, vec_t& x_OUT) {
     // calculate alpha to minimize obj. func. along direction p
     double alpha{ tlk::innerProd(p,r)/tlk::innerProd(p,y) };
     // update solution vector x
-    x_OUT = updateVector(x_OUT,alpha,p);
+    x_OUT = tlk::updateVector(x_OUT,alpha,p);
     // update residual vector to be
     // r = r - alpha*y = r - alpha*A*p = b - A*x - alpha*A*p = b - A*(x+alpha*p)
-    r = updateVector(r,-alpha,y);
+    r = tlk::updateVector(r,-alpha,y);
     // update the residual norm
     r_norm = tlk::getNorm(r);
     // calculate beta to obtain next conjugate vector p
     double beta{ -tlk::innerProd(r,y)/tlk::innerProd(p,y) };
     // get next conjugate vector
-    p = updateVector(r,beta,p);
+    p = tlk::updateVector(r,beta,p);
     // keep track of # of iterations and throw error once they exceed the
     // theoretical maximum
     testMaxIter(iter_counter,m,step);
@@ -136,16 +123,16 @@ void smartCG(const mat_t& A, const vec_t& b, vec_t& x_OUT) {
     // calculate alpha to minimize obj. func. along direction p
     double alpha{ rTr/tlk::innerProd(p,y) };
     // update solution vector x
-    x_OUT = updateVector(x_OUT,alpha,p);
+    x_OUT = tlk::updateVector(x_OUT,alpha,p);
     // update residual vector to be
     // r = r - alpha*y = r - alpha*A*p = b - A*x - alpha*A*p = b - A*(x+alpha*p)
-    r = updateVector(r,-alpha,y);
+    r = tlk::updateVector(r,-alpha,y);
     // update (residual norm)^2
     double rTr_new{tlk::innerProd(r,r)};
     // calculate beta to obtain next conjugate vector p
     double beta{ rTr_new/rTr };
     // get next conjugate vector
-    p = updateVector(r,beta,p);
+    p = tlk::updateVector(r,beta,p);
     // update the old inner product with the new
     rTr = rTr_new;
     // keep track of # of iterations and throw error once they exceed the
@@ -195,10 +182,10 @@ void smartPreCondCG(const mat_t& A, const vec_t& b, vec_t& x_OUT) {
     // calculate alpha to minimize obj. func. along direction p
     double alpha{ E/tlk::innerProd(p,y) };
     // update solution vector x
-    x_OUT = updateVector(x_OUT,alpha,p);
+    x_OUT = tlk::updateVector(x_OUT,alpha,p);
     // update residual vector to be
     // r = r - alpha*y = r - alpha*A*p = b - A*x - alpha*A*p = b - A*(x+alpha*p)
-    r = updateVector(r,-alpha,y);
+    r = tlk::updateVector(r,-alpha,y);
     // update z vector
     tlk::diagPreCond(A,r,z);
     // update (residual norm)^2
@@ -206,7 +193,7 @@ void smartPreCondCG(const mat_t& A, const vec_t& b, vec_t& x_OUT) {
     // calculate beta to obtain next conjugate vector p
     double beta{ E_new/E };
     // get next conjugate vector
-    p = updateVector(z,beta,p);
+    p = tlk::updateVector(z,beta,p);
     // update the old inner product with the new
     E = E_new;
     // keep track of # of iterations and throw error once they exceed the

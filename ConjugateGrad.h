@@ -1,6 +1,4 @@
-#include "Constants.h"
 #include "Types.h"
-#include <vector>
 
 #ifndef CONJUGATE_GRAD
 #define CONJUGATE_GRAD

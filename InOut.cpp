@@ -15,6 +15,8 @@
 
 namespace inout {
 
+  using std::size_t;
+
   int listMethods() {
     // this function lists each of the methods we have available in the module,
     // and returns "n" which is the total number of methods
@@ -90,7 +92,8 @@ namespace inout {
 
       // check to see whether input is a valid integer
       if (0 <= user_input && user_input < n) not_valid = false;
-      else cout << "\nNot a valid input, provide an integer value in [0,5).\n";
+      else cout << "\nNot a valid input, provide an integer value in [0," << n
+                << ").\n";
     }
     return user_input;
   }
@@ -120,6 +123,32 @@ namespace inout {
     }
     tlk::writeMatrix("mat_symm.dat",A);
     tlk::writeVector("vec_symm.dat",b);
+  }
+
+  size_t askSubspaceDim(const size_t m) {
+    // This function is called when the GMRES method is selected. It prompts the
+    // user to enter the dimension of the Krylov subspace that the solution
+    // should be minimized over.
+    size_t user_input{};
+    bool   not_valid{true};
+    while (not_valid) {
+      using std::cout;
+      cout << "\nPlease choose dimension for Krylov subspace:\n";
+      std::cin >> user_input;
+
+      // make sure std::cin is robust
+      if (std::cin.fail()) { // to handle a failed extraction
+        std::cin.clear();    // failure causes user_input to be zero-initialized
+        user_input = m+1;    // so we set to m+1 to cause not_valid to remain true
+      }
+      ignoreLine();          // to remove any extraneous input
+
+      // check to see whether input is a valid integer
+      if (user_input <= m) not_valid = false;
+      else cout << "\nNot a valid input, provide an integer value in [0," << m
+                << "].\n";
+    }
+    return user_input;
   }
 
 }
