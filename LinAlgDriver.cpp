@@ -6,7 +6,7 @@
  *
  * ConjugateGrad.cpp
  * GuassianElim.cpp
- * GMRES.cpp
+ * GMRES.cpp (which itself calls LSQ.cpp)
  * Inout.cpp
  * LinAlgToolkit.cpp
  *
@@ -15,7 +15,8 @@
  * read in from two separate files (e.g., mat_A.dat and vec_b.dat). The names
  * of these two files may be provided by the user as command line arguments, but
  * if omited, the program will then prompt the user to enter the filenames.
- * After reading in the contents from the two files, the program prompts the user
+ *
+ * After reading in the contents of the two files, the program prompts the user
  * to choose a numerical method to apply. Once a selection is made, the program
  * shows the results and writes the solution vector to a file named x_soln.dat.
  *
@@ -39,17 +40,17 @@ int main(int argc, char* argv[]) { // command line args will be 2 filenames
   // to create files containing a symmetric system for future use in CG method
   // inout::generateSymmSystem(100,100);
 
-  // check for command line arguments
+  // to get filenames, we first check for command line arguments
   std::string filename_A{};
   std::string filename_b{};
   if (argc < 2) {
-    // if not provided, ask user to specify filename of matrix A
+    // if not provided, we ask user to specify filename of matrix A
     // and vector b to be used in system
     filename_A = inout::askFileChoice('A');
     filename_b = inout::askFileChoice('b');
   }
   else {
-    // otherwise, use command line arguments
+    // otherwise, use given command line arguments
     filename_A = argv[1];
     filename_b = argv[2];
   }
@@ -61,11 +62,13 @@ int main(int argc, char* argv[]) { // command line args will be 2 filenames
   // dynamically allocate m by n array and initialize using readMatrix()
   mat_t A(m,vec_t(n));
   tlk::readMatrix(filename_A,A);
+
   // dynamically allocate vector of length m and initialize using readVector()
   vec_t b(m);
   tlk::readVector(filename_b,b);
-  // declare and zero-initialize the solution vector x
-  vec_t x(m);
+
+  // dynamically allocate and zero-initialize the solution vector x
+  vec_t x(n);
 
   // report the size of the matrix to the user
   cout << "\nThe matrix contained in file " << filename_A
@@ -73,7 +76,7 @@ int main(int argc, char* argv[]) { // command line args will be 2 filenames
 
   // show the original system to the user if small enough
   bool small_system{std::max(m,n) <= 8};
-  if (small_system) {
+  if  (small_system) {
     cout << "\nHere is the matrix A:";
     tlk::showMatrix(A);
     cout << "\nHere is the vector b:";
@@ -83,7 +86,7 @@ int main(int argc, char* argv[]) { // command line args will be 2 filenames
   // ask user to choose numerical method
   int user_input{ inout::askMethodChoice() };
 
-  // define POD enumerator type to make switch cases more clear
+  // define POD enumerator type to make the following switch cases more readable
   enum Method {
     method_GaussElim,
     method_basicCG,
@@ -95,6 +98,7 @@ int main(int argc, char* argv[]) { // command line args will be 2 filenames
   // apply the chosen method
   switch(user_input) {
     case method_GaussElim: {
+
       pivotElim(A,b);
       if (small_system) {
         cout << "\nHere is matrix A after Gaussian Elimination with pivoting:";
@@ -104,22 +108,31 @@ int main(int argc, char* argv[]) { // command line args will be 2 filenames
       }
       backSub(A,b,x);
       break;
+
     }
     case method_basicCG: {
+
       basicCG(A,b,x);
       break;
+
     }
     case method_smartCG: {
+
       smartCG(A,b,x);
       break;
+
     }
     case method_smartPreCondCG: {
+
       smartPreCondCG(A,b,x);
       break;
+
     }
     case method_GMRES: {
-      applyGMRES(A,b,x, inout::askSubspaceDim(m) );
+
+      applyGMRES(A,b,x);
       break;
+
     }
   }
 
@@ -132,7 +145,7 @@ int main(int argc, char* argv[]) { // command line args will be 2 filenames
   // write solution vector to file
   tlk::writeVector("x_soln.dat",x);
 
-  // re-read system in order to compute error
+  // re-read systemfrom file in order to compute error
   tlk::readMatrix(filename_A,A);
   tlk::readVector(filename_b,b);
 

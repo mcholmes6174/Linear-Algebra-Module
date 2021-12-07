@@ -38,22 +38,22 @@ namespace inout {
   }
 
   void ignoreLine() {
-    // this function tells std::cin to ignore all buffered characters through and
-    // including the next newline character
+    // this function tells std::cin to ignore all buffered characters through
+    // and including the next newline character
     std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
   }
 
   std::string askFileChoice(const char A_or_b) {
     using std::cout;
     switch (A_or_b) {
-    case 'A': {
-      cout << "\nPlease enter name of file containing system matrix A:\n\n";
-      break;
-    }
-    case 'b': {
-      cout << "\nPlease enter name of file containing system vector b:\n\n";
-      break;
-    }
+      case 'A': {
+        cout << "\nPlease enter name of file containing system matrix A:\n\n";
+        break;
+      }
+      case 'b': {
+        cout << "\nPlease enter name of file containing system vector b:\n\n";
+        break;
+      }
     }
     std::string filename{};
     bool not_valid{true};

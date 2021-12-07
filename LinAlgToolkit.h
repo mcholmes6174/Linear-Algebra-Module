@@ -41,6 +41,8 @@ namespace tlk {
 
   void matVecMul(const mat_t&, const vec_t&, vec_t& y_OUT);
 
+  void normalizeVec(vec_t& x_OUT);
+
   void nthColumn(const std::string, mat_t&, vec_t&, const size_t);
 
   void readMatrix(const std::string, mat_t& A_OUT);

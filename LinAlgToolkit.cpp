@@ -139,11 +139,13 @@ namespace tlk {
 
   vec_t makeVecCopy(const vec_t& x, const double scalar=1.0) {
     // this function returns the vector x after optionally being scaled.
-    for (auto x_i : x) {
-      x_i = scalar*x_i;
+    vec_t x_OUT(x.size());
+    for (size_t i{}; auto x_i : x) {
+      x_OUT[i] = scalar*x_i;
+      ++i;
     }
     // we return by value here so that a copy is made automatically
-    return x;
+    return x_OUT;
   }
 
   void matVecMul(const mat_t& A, const vec_t& x, vec_t& y_OUT) {
@@ -153,6 +155,13 @@ namespace tlk {
         y_OUT[i] += A[i][j] * x_j;
         ++j;
       }
+    }
+  }
+
+  void normalizeVec(vec_t& x_OUT) {
+    double norm{ getNorm(x_OUT) };
+    for (size_t i{}; i < x_OUT.size(); ++i) {
+      x_OUT[i] /= norm;
     }
   }
 
@@ -198,7 +207,7 @@ namespace tlk {
     // loop through file inserting values into matrix A
     for (size_t k{}; k < m*n; ++k) {
       // get value and store within A
-      size_t i{ static_cast<size_t>(std::floor(k/m)) };
+      size_t i{ static_cast<size_t>(std::floor(k/n)) };
       size_t j{ k % n };
       inf >> strVal;
       A_OUT[i][j] = std::stod(strVal);
@@ -206,15 +215,16 @@ namespace tlk {
   }
 
   size_t readNthVal(const std::string filename, const int n) {
-    // this function reads the nth value from the file "filename" and
-    // returns it as type integer.
+    // this function reads the nth value from the file "filename" and returns
+    // it as type std::size_t. This function was created in order to read the
+    // dimensions of a matrix in from file.
     std::ifstream inf{filename};
     catchFileError(filename,!inf);
     std::string strVal;
     for (int i{}; i <= n; ++i) {
       inf >> strVal;
     }
-    return static_cast<size_t>(std::stoi(strVal));
+    return static_cast<size_t>( std::stoi(strVal) );
   }
 
   void readVector(const std::string filename, vec_t& x_OUT) {
