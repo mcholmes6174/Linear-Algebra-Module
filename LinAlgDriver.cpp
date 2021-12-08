@@ -21,6 +21,7 @@
  * shows the results and writes the solution vector to a file named x_soln.dat.
  *
  */
+#include "Classes.h"
 #include "ConjugateGrad.h" // Conjugate-Gradient routines
 #include "GaussianElim.h"  // Gaussian Elimination routines
 #include "GMRES.h"         // GMRES routines
@@ -32,11 +33,56 @@
 #include <string>          // std::string
 #include <vector>          // std::vector (dynamic array functionality)
 
+void exploreOOP() {
+
+  // here we declare a variable of class Vector called x and set its length
+  index  m{5};
+  Vector x{m};
+  Vector y{m};
+
+  // now we initialize the vector with nonzero values
+  for (index i{}; i < m; ++i) {
+    x.setVal(i,i+1);
+    y.setVal(i,2);
+  }
+
+  // we access the member function called show()
+  x.show();
+  y.show();
+
+  // take the inner product of x and y
+  double product{ tlk::innerProd2(x,y) };
+  std::cout << "\nThe inner product of x and y is: " << product << '\n';
+
+  // here we declare a variable of class Matrix called A and set its size
+  Matrix A;
+  index n{5};
+  A.setSize(m,n);
+
+  // here we access the member function called show()
+  A.show();
+
+  // now we initialize the vector with nonzero values
+  for (index i{}; i < m; ++i) {
+    for (index j{}; j < n; ++j) {
+      A.setVal(i,j,i+j);
+    }
+  }
+
+  // we show again
+  A.show();
+
+}
+
 int main(int argc, char* argv[]) { // command line args will be 2 filenames
   using std::cout;
   cout << "*******************************************************************";
   cout << "\nWelcome to the Linear Algebra Module.";
   cout << "\nHere we will solve a linear system Ax=b.\n";
+
+  // here we will experiment with object oriented programming
+  exploreOOP();
+  std::exit(0);
 
   // to create files containing a symmetric system for future use in CG method
   // inout::generateSymmSystem(100,100);
@@ -57,8 +103,8 @@ int main(int argc, char* argv[]) { // command line args will be 2 filenames
   }
 
   // read in matrix size from file
-  size_t m{ tlk::readNthVal(filename_A,0) };
-  size_t n{ tlk::readNthVal(filename_A,1) };
+  index m{ tlk::readNthVal(filename_A,0) };
+  index n{ tlk::readNthVal(filename_A,1) };
 
   // dynamically allocate m by n array and initialize using readMatrix()
   mat_t A(m,vec_t(n));

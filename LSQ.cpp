@@ -11,8 +11,6 @@
 #include <cmath>
 #include <iostream>
 
-using std::size_t;
-
 void decompQR(mat_t& A_OUT, vec_t& b_OUT, vec_t& v_diag_OUT) {
   // This function computes the full QR decomposition (A=QR) of an m by n
   // (m > n) matrix A using the method of Householder transformations. in the
@@ -30,18 +28,18 @@ void decompQR(mat_t& A_OUT, vec_t& b_OUT, vec_t& v_diag_OUT) {
   // Q^T*A = Q^T*b
 
   // we loop over the columns of A
-  size_t n{A_OUT[0].size()};
-  for (size_t j{}; j < n; ++j) {
+  index n{A_OUT[0].size()};
+  for (index j{}; j < n; ++j) {
 
   // we get the signed norm of the jth column for i >= j
   double s_j{ std::copysign(1.0, A_OUT[j][j]) };
   double norm{};
 
   // we also initialize the vector v_j within the loop for efficiency
-  size_t m{A_OUT.size()};
+  index m{A_OUT.size()};
   vec_t v_j(m);
 
-  for (size_t i{j}; i < m; ++i) {
+  for (index i{j}; i < m; ++i) {
     norm  += std::pow( A_OUT[i][j], 2.0 );
     v_j[i] = A_OUT[i][j];
   }
@@ -55,7 +53,7 @@ void decompQR(mat_t& A_OUT, vec_t& b_OUT, vec_t& v_diag_OUT) {
 
   // next, we apply the matrix multiplication H*A where H = I - 2vv^T
   // we get A = A - 2(vv^T)*A
-  for (size_t k{}; k < n; ++k) {
+  for (index k{}; k < n; ++k) {
 
     // get kth column vector of A
     vec_t a_k(m);
@@ -64,7 +62,7 @@ void decompQR(mat_t& A_OUT, vec_t& b_OUT, vec_t& v_diag_OUT) {
     // get inner product < v_j, a_k >
     // and subtract 2*(vv^T)*A from kth column of A
     double vTa{ tlk::innerProd(v_j,a_k) };
-    for (size_t i{}; i < m; ++i) {
+    for (index i{}; i < m; ++i) {
       A_OUT[i][k] -= 2*v_j[i]*vTa;
     }
 
@@ -72,12 +70,12 @@ void decompQR(mat_t& A_OUT, vec_t& b_OUT, vec_t& v_diag_OUT) {
 
   // apply Householder transformation to vector b as well
   double vTb{ tlk::innerProd(v_j,b_OUT) };
-  for (size_t i{}; i < m; ++i) {
+  for (index i{}; i < m; ++i) {
     b_OUT[i] -= 2*v_j[i]*vTb;
   }
 
   // store the values of v_j for i > j in A_OUT to save memory
-  for (size_t i{j+1}; i < m; ++i) {
+  for (index i{j+1}; i < m; ++i) {
     A_OUT[i][j] = v_j[i];
   }
 
@@ -97,7 +95,7 @@ void solveTriLSQ(const mat_t& R, const vec_t& Qb, vec_t& y_OUT) {
   // written on exit.
 
   // get size of the square n x n system R*y = Q^T*b
-  size_t n{ R[0].size() };
+  index n{ R[0].size() };
 
   // loop over the rows of R, bottom to top, computing the entries y[i]
   for (auto i{n}; i-- > 0; ) { // loop takes odd shape due to unsigned integers

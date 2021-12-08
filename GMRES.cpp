@@ -15,9 +15,7 @@
  #include <iostream>
  #include <string>
 
- using std::size_t;
-
-void applyArnoldi(const mat_t& A, mat_t& Q_OUT, mat_t& H_OUT, const size_t j) {
+void applyArnoldi(const mat_t& A, mat_t& Q_OUT, mat_t& H_OUT, const index j) {
   // This function applies the jth step of the Arnoldi Algorithm in order to
   // compute an orthonormal basis for the Krylov subspace K_n(A,b), where the
   // vector b is implicitly contained in the first column of Q as
@@ -28,7 +26,7 @@ void applyArnoldi(const mat_t& A, mat_t& Q_OUT, mat_t& H_OUT, const size_t j) {
   // becoming the n+1 by n Hessenberg version of A on exit.
 
   // get sizes
-  size_t m{ A.size() };
+  index m{ A.size() };
 
   // declare and zero-initialize column vectors
   vec_t q_next(m);                    // q_{j+1}
@@ -37,7 +35,7 @@ void applyArnoldi(const mat_t& A, mat_t& Q_OUT, mat_t& H_OUT, const size_t j) {
   tlk::matVecMul(A,q_j,q_next);       // q_{j+1} = A*q_j
 
   // loop under index j and modify q to ensure mutual orthogonality
-  for (size_t i{}; i <= j; ++i) {
+  for (index i{}; i <= j; ++i) {
     H_OUT[i][j] = tlk::innerProd(q_next,q_j);  // < q_{j+1}, q_i >
     vec_t q_i(m);
     tlk::nthColumn("grab",Q_OUT,q_i,i);
@@ -61,12 +59,12 @@ void multiplyByQ(const mat_t& Q, const vec_t& y, vec_t& x_OUT) {
   // this function performs the multiplication x = Q*y
 
   // get size of m x n system x_n = Q_n*y_n
-  size_t m{    Q.size()   };
-  size_t n{ Q[0].size()-1 };
+  index m{    Q.size()   };
+  index n{ Q[0].size()-1 };
 
   // multiply
-  for (size_t i{}; i < m; ++i) {
-    for (size_t j{}; j < n; ++j) {
+  for (index i{}; i < m; ++i) {
+    for (index j{}; j < n; ++j) {
       x_OUT[i] += Q[i][j] * y[j];
     }
   }
@@ -78,11 +76,11 @@ void applyGMRES(mat_t& A_OUT, vec_t& b_OUT, vec_t& x_OUT) {
   // Ax=b.
 
   // first, we get the size of the system
-  const size_t m{A_OUT.size()};
-  const size_t max_dim{A_OUT[0].size()};
+  const index m{A_OUT.size()};
+  const index max_dim{A_OUT[0].size()};
 
   // and we begin the iterative process with
-  size_t n{1};
+  index n{1};
   // which will specify the dimension of the Krylov subspace we minimize over
 
   // We declare and initialize vector r_0, scalar beta, and matries Q_n and H_n
@@ -94,7 +92,7 @@ void applyGMRES(mat_t& A_OUT, vec_t& b_OUT, vec_t& x_OUT) {
 
   // store (1/beta)*r in first column of Q_n (a hassle b/c C is row major)
   // this is the first vector in our orthonormal basis
-  for (size_t i{}; auto r_i : r) {
+  for (index i{}; auto r_i : r) {
     Q_np1[i][0] = (1.0/beta)*r_i;
     ++i;
   }
@@ -159,7 +157,7 @@ void applyGMRES(mat_t& A_OUT, vec_t& b_OUT, vec_t& x_OUT) {
     }
 
     // add an extra column to Q_np1 and an extra row and column to H_n
-    for (size_t i{}; i < m; ++i) {
+    for (index i{}; i < m; ++i) {
       Q_np1[i].resize(n+1);
       if (i == 0)  H_n.resize(n+1);
       if (i < n+1) H_n[i].resize(n);

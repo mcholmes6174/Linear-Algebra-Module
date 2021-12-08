@@ -14,16 +14,14 @@
 #include <cmath>
 #include <vector>
 
-using std::size_t;
-
 void pivotElim(mat_t& A_OUT, vec_t& b_OUT) {
   // get size of system
-  size_t m{    A_OUT.size() };
-  size_t n{ A_OUT[0].size() };
+  index m{    A_OUT.size() };
+  index n{ A_OUT[0].size() };
   // loop over all columns (func. terminates at end of this loop)
-  for (size_t j{}; j<n; ++j) {
+  for (index j{}; j<n; ++j) {
     // search for better pivot (p) than current pivot (j)
-    size_t p{j}; // index of pivot row
+    index p{j}; // index of pivot row
     for (auto k{j+1}; k < m; ++k) {
       if (std::abs(A_OUT[k][j]) > std::abs(A_OUT[p][j])) p = k;
     }
@@ -35,7 +33,7 @@ void pivotElim(mat_t& A_OUT, vec_t& b_OUT) {
     for (auto i{j+1}; i<m; ++i) {
       // for each row, we perform the Guassian Elimination row operation
       double scalar{ A_OUT[i][j]/A_OUT[j][j] };
-      for (size_t k{}; k < n; ++k) {
+      for (index k{}; k < n; ++k) {
         A_OUT[i][k] -= A_OUT[j][k] * scalar;
       }
       // repreat the row operation to vector b to ensure an equivalent system
@@ -46,8 +44,8 @@ void pivotElim(mat_t& A_OUT, vec_t& b_OUT) {
 
 void backSub(const mat_t& U, const vec_t& y, vec_t& x_OUT) {
   // get size of system
-  size_t m{    U.size() };
-  size_t n{ U[0].size() };
+  index m{    U.size() };
+  index n{ U[0].size() };
   // loop over the rows, bottom to top, computing the entries x[i]
   for (auto i{m}; i-- > 0; ) { // loop takes odd shape due to unsigned integers
     // test for singularity

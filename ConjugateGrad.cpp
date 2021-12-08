@@ -19,9 +19,7 @@
 #include <iostream>
 #include <vector>
 
-using std::size_t;
-
-void testMaxIter(int num_iter, size_t max_iter, int step) {
+void testMaxIter(int num_iter, index max_iter, int step) {
   // this function checks whether the # of iterations executed in the
   // C-G method exceeds the theoretical maximum before convergence is
   // guaranteed, and throws an error if it does. It also prints every nth
@@ -47,7 +45,7 @@ void basicCG(const mat_t& A, const vec_t& b, vec_t& x_OUT) {
   tlk::checkSymm(A);
 
   // then get size of system
-  const size_t m{A.size()};
+  const index m{A.size()};
 
   // initialize residual r, initial conjugate vector p, and residual norm
   // we assume that the initial guess to the solution is x=0
@@ -98,7 +96,7 @@ void smartCG(const mat_t& A, const vec_t& b, vec_t& x_OUT) {
   tlk::checkSymm(A);
 
   // then get size of system
-  size_t m{A.size()};
+  index m{A.size()};
 
   // initialize residual r, initial conjugate vector p, and (residual norm)^2
   // we assume that the initial guess to the solution is x=0
@@ -152,7 +150,7 @@ void smartPreCondCG(const mat_t& A, const vec_t& b, vec_t& x_OUT) {
   tlk::checkSymm(A);
 
   // then get size of system
-  size_t m{A.size()};
+  index m{A.size()};
 
   // we assume that the initial guess to the solution is x=0
   // initialize residual r

@@ -15,8 +15,6 @@
 
 namespace inout {
 
-  using std::size_t;
-
   int listMethods() {
     // this function lists each of the methods we have available in the module,
     // and returns "n" which is the total number of methods
@@ -74,7 +72,7 @@ namespace inout {
     return filename;
   }
 
-  int askMethodChoice(const size_t m, const size_t n) {
+  int askMethodChoice(const index m, const index n) {
     int  user_input{};
     bool not_valid{true};
     while (not_valid) {
@@ -112,13 +110,13 @@ namespace inout {
     return user_input;
   }
 
-  void generateSymmSystem(const size_t m, const size_t n) {
+  void generateSymmSystem(const index m, const index n) {
     mat_t A(m,vec_t(n));
     vec_t b(n);
     double fill{1.0};
     // fill the arrays with nonzero values
-    for (size_t i{}; i < m; ++i) {
-      for (size_t j{}; j < n; ++j) {
+    for (index i{}; i < m; ++i) {
+      for (index j{}; j < n; ++j) {
         // to handle the main diagonal differently than off-diagonal
         switch (i==j) {
           case true: {
