@@ -9,11 +9,9 @@ namespace inout {
 
   std::string askFileChoice(const char);
 
-  int askMethodChoice();
+  int askMethodChoice(const size_t, const size_t);
 
   void generateSymmSystem(const size_t, const size_t);
-
-  size_t askSubspaceDim(const size_t);
 
 }
 

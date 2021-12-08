@@ -21,13 +21,14 @@ namespace inout {
     // this function lists each of the methods we have available in the module,
     // and returns "n" which is the total number of methods
     using std::cout;
-    constexpr int n{5};
+    constexpr int n{6};
     std::string method_list[n]{
       "Gaussian Elimination with Pivoting and Back-Substitution",
       "Conjugate-Gradient",
       "Smart Conjugate-Gradient",
       "Smart Diagonally-Preconditioned Conjugate-Gradient",
-      "Generalized Minimal Residual (GMRES)"
+      "Generalized Minimal Residual (GMRES)",
+      "Least Squares via Householder transformation QR decomposition"
     };
     for (int i{}; i < n; ++i) {
       if (i == 0) cout << '\n';
@@ -73,14 +74,14 @@ namespace inout {
     return filename;
   }
 
-  int askMethodChoice() {
+  int askMethodChoice(const size_t m, const size_t n) {
     int  user_input{};
     bool not_valid{true};
     while (not_valid) {
       using std::cout;
       cout << "\nPlease choose a method to apply:";
-      int n{};
-      n = listMethods(); // returns total # of methods
+      int n_methods{};
+      n_methods = listMethods(); // returns total # of methods
       std::cin >> user_input;
 
       // make sure std::cin is robust
@@ -91,9 +92,22 @@ namespace inout {
       ignoreLine();          // to remove any extraneous input
 
       // check to see whether input is a valid integer
-      if (0 <= user_input && user_input < n) not_valid = false;
+      if (0 <= user_input && user_input < n_methods) not_valid = false;
       else cout << "\nNot a valid input, provide an integer value in [0," << n
                 << ").\n";
+
+      // check to see if method is compatible with system
+      const bool square{m==n};
+      const bool overdetermined{m>n};
+      if (square && user_input == n_methods-1) {
+        not_valid = true;
+        cout << "\nSystem is square, please choose method accordingly.\n";
+      }
+      else if (overdetermined && user_input != n_methods-1) {
+        not_valid = true;
+        cout << "\nSystem is overdetermined,"
+             << " please choose method accordingly.\n";
+      }
     }
     return user_input;
   }
@@ -123,32 +137,6 @@ namespace inout {
     }
     tlk::writeMatrix("mat_symm.dat",A);
     tlk::writeVector("vec_symm.dat",b);
-  }
-
-  size_t askSubspaceDim(const size_t m) {
-    // This function is called when the GMRES method is selected. It prompts the
-    // user to enter the dimension of the Krylov subspace that the solution
-    // should be minimized over.
-    size_t user_input{};
-    bool   not_valid{true};
-    while (not_valid) {
-      using std::cout;
-      cout << "\nPlease choose dimension for Krylov subspace:\n";
-      std::cin >> user_input;
-
-      // make sure std::cin is robust
-      if (std::cin.fail()) { // to handle a failed extraction
-        std::cin.clear();    // failure causes user_input to be zero-initialized
-        user_input = m+1;    // so we set to m+1 to cause not_valid to remain true
-      }
-      ignoreLine();          // to remove any extraneous input
-
-      // check to see whether input is a valid integer
-      if (user_input <= m) not_valid = false;
-      else cout << "\nNot a valid input, provide an integer value in [0," << m
-                << "].\n";
-    }
-    return user_input;
   }
 
 }

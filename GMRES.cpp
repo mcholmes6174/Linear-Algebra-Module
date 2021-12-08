@@ -133,6 +133,7 @@ void applyGMRES(mat_t& A_OUT, vec_t& b_OUT, vec_t& x_OUT) {
     // std::cout << "\nH\n";
     // tlk::showMatrix(H_n);
 
+    vec_t y(n);
     solveTriLSQ(H_n, beta_e1, y);
 
     // for debugging

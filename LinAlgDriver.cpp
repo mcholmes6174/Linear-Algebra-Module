@@ -6,7 +6,7 @@
  *
  * ConjugateGrad.cpp
  * GuassianElim.cpp
- * GMRES.cpp (which itself calls LSQ.cpp)
+ * GMRES.cpp
  * Inout.cpp
  * LinAlgToolkit.cpp
  *
@@ -24,8 +24,9 @@
 #include "ConjugateGrad.h" // Conjugate-Gradient routines
 #include "GaussianElim.h"  // Gaussian Elimination routines
 #include "GMRES.h"         // GMRES routines
-#include "LinAlgToolkit.h" // tlk:: routines in user-defined namespace
 #include "InOut.h"         // io::  routines in user-defined namespace
+#include "LinAlgToolkit.h" // tlk:: routines in user-defined namespace
+#include "LSQ.h"           // QR decomp and back-sub routines for least squares
 #include "Types.h"         // type aliases mat_t and vec_t for std::vector
 #include <iostream>        // std::cout and std::cin
 #include <string>          // std::string
@@ -35,7 +36,7 @@ int main(int argc, char* argv[]) { // command line args will be 2 filenames
   using std::cout;
   cout << "*******************************************************************";
   cout << "\nWelcome to the Linear Algebra Module.";
-  cout << "\nHere we will solve a square linear system Ax=b.\n";
+  cout << "\nHere we will solve a linear system Ax=b.\n";
 
   // to create files containing a symmetric system for future use in CG method
   // inout::generateSymmSystem(100,100);
@@ -84,7 +85,7 @@ int main(int argc, char* argv[]) { // command line args will be 2 filenames
   }
 
   // ask user to choose numerical method
-  int user_input{ inout::askMethodChoice() };
+  int user_input{ inout::askMethodChoice(m,n) };
 
   // define POD enumerator type to make the following switch cases more readable
   enum Method {
@@ -92,7 +93,8 @@ int main(int argc, char* argv[]) { // command line args will be 2 filenames
     method_basicCG,
     method_smartCG,
     method_smartPreCondCG,
-    method_GMRES
+    method_GMRES,
+    method_HouseholderLSQ
   };
 
   // apply the chosen method
@@ -132,6 +134,13 @@ int main(int argc, char* argv[]) { // command line args will be 2 filenames
 
       applyGMRES(A,b,x);
       break;
+
+    }
+    case method_HouseholderLSQ: {
+
+      vec_t v_diag(m);
+      decompQR(A,b,v_diag);
+      solveTriLSQ(A,b,x);
 
     }
   }
