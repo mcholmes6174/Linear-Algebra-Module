@@ -9,9 +9,10 @@
  * GMRES.cpp
  * Inout.cpp
  * LinAlgToolkit.cpp
+ * LSQ.cpp
  *
- * in order to solve a square linear system Ax=b using a method chosen by the
- * user at runtime. The matrix A and vector b that define the system are to be
+ * in order to solve a linear system Ax=b using a method chosen by the user
+ * at runtime. The matrix A and vector b that define the system are to be
  * read in from two separate files (e.g., mat_A.dat and vec_b.dat). The names
  * of these two files may be provided by the user as command line arguments, but
  * if omited, the program will then prompt the user to enter the filenames.
@@ -21,14 +22,15 @@
  * shows the results and writes the solution vector to a file named x_soln.dat.
  *
  */
-#include "Classes.h"
 #include "ConjugateGrad.h" // Conjugate-Gradient routines
 #include "GaussianElim.h"  // Gaussian Elimination routines
 #include "GMRES.h"         // GMRES routines
 #include "InOut.h"         // io::  routines in user-defined namespace
 #include "LinAlgToolkit.h" // tlk:: routines in user-defined namespace
 #include "LSQ.h"           // QR decomp and back-sub routines for least squares
+#include "Matrix.h"        // Matrix user-defined class
 #include "Types.h"         // type aliases mat_t and vec_t for std::vector
+#include "Vector.h"        // Vector user-defined class
 #include <iostream>        // std::cout and std::cin
 #include <string>          // std::string
 #include <vector>          // std::vector (dynamic array functionality)
@@ -37,8 +39,9 @@ void exploreOOP() {
 
   // here we declare a variable of class Vector called x and set its length
   index  m{5};
-  Vector x{m};
-  Vector y{m};
+  Vector x{m}; // we can call x{} or x{m} b/c of our default constructor
+  Vector y{};
+  y.setSize(m);
 
   // now we initialize the vector with nonzero values
   for (index i{}; i < m; ++i) {

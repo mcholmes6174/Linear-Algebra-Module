@@ -11,9 +11,10 @@
  * with the suffix _OUT. All other functions return by value unless void.
  *
  */
-#include "Classes.h"
 #include "Constants.h" // consts:: user-defined namespace
+#include "Matrix.h"
 #include "Types.h"
+#include "Vector.h"
 #include <cmath>       // std::pow() and std::sqrt() and std::abs()
 #include <fstream>     // to do file I/O
 #include <iomanip>     // to override the default precision shown by std::cout
