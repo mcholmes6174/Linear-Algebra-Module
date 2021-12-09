@@ -4,16 +4,13 @@ December 2021
 This program is my first significant C++ code. The driver file LinAlgDriver.cpp
 calls routines defined in the secondary files:
 
-ConjugateGrad.cpp
-GuassianElim.cpp
-GMRES.cpp
-Inout.cpp
-LinAlgToolkit.cpp
-LSQ.cpp
+ConjugateGrad.cpp     GuassianElim.cpp     GMRES.cpp
+Inout.cpp             LinAlgToolkit.cpp    LSQ.cpp
 
 in order to solve a linear system Ax=b using a method chosen by the user at
 runtime. This module includes methods to solve both square and overdetermined
-systems.
+systems. Toy systems with which to test the methods on can be found in the
+Toy_Systems folder within this module1 directory.
 
 The matrix A and vector b that define the system are to be read in from two
 separate files (e.g., mat_A.dat and vec_b.dat). The names of these two files may
@@ -27,4 +24,4 @@ file named x_soln.dat.
 
 The Matrix.h and Vector.h files contain the declarations of the Matrix and
 Vector user-defined classes respectively, while the corresponding .cpp files
-contains their member function implementations.
+contain their member function implementations.

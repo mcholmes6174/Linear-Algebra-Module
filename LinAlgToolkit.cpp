@@ -6,22 +6,22 @@
  * with matrices and vectors, particularly in the context of numerical linear
  * algebra.
  *
- * Functions that would otherwise return vec_t or mat_t types utilize non-const
- * reference parameters for performance reasons. These parameters are labeled
- * with the suffix _OUT. All other functions return by value unless void.
+ * Functions that would otherwise return Vector or Matrix objects utilize
+ * non-const reference parameters for performance reasons. These parameters are
+ * labeled with the suffix _OUT. Generally, all other functions return by value
+ * unless void.
  *
  */
 #include "Constants.h" // consts:: user-defined namespace
 #include "Matrix.h"
 #include "Types.h"
 #include "Vector.h"
-#include <cassert>
-#include <cmath>       // std::pow() and std::sqrt() and std::abs()
+#include <cassert>     // for assert() function calls
+#include <cmath>       // std::pow(), std::sqrt(), std::abs(), etc.
 #include <fstream>     // to do file I/O
 #include <iomanip>     // to override the default precision shown by std::cout
 #include <iostream>
 #include <string>
-#include <vector>
 
 namespace tlk {
 
@@ -80,6 +80,7 @@ namespace tlk {
     // via the multiplication z = M^(-1)*r, where M=diag(A) is the diagonal
     // preconditoner matrix. The original matrix A should be passed as the first
     // argument.
+    assert(r.size() == z_OUT.size() && r.size() == M.size(0));
     for (index i{}; i < r.size(); ++i) {
       z_OUT.set(i) = (1.0/M.get(i,i)) * r.get(i);
     }
@@ -89,10 +90,11 @@ namespace tlk {
                                                         Vector& err_OUT) {
     // this function computes the error in the solution x to the system Ax=b
     // once a solution has been found. It simply returns err = Ax-b.
-    void matVecMul(const Matrix&, const Vector&, Vector& y_OUT); // forward declare
-    matVecMul(A,x,err_OUT);  // multiply A*x
+    // forward declaration necessary if we are to keep alphabetical order
+    void matVecMul(const Matrix&, const Vector&, Vector& y_OUT);
+    matVecMul(A,x,err_OUT);       // multiply A*x
     for (index i{}; i < x.size(); ++i) {
-      err_OUT.set(i) -= b.get(i);
+      err_OUT.set(i) -= b.get(i); // subtract b
     }
   }
 
@@ -133,6 +135,7 @@ namespace tlk {
 
   void matVecMul(const Matrix& A, const Vector& x, Vector& y_OUT) {
     // this function performs the matrix-vector multiplication y=Ax.
+    assert(A.size(0) == y_OUT.size() && A.size(1) == x.size());
     for (index i{}; i < A.size(0); ++i) {
       for (index j{}; j < A.size(1); ++j) {
         y_OUT.set(i) += A.get(i,j) * x.get(j);
@@ -145,7 +148,7 @@ namespace tlk {
     // This function either returns the nth column of a matrix as a vector or
     // stores a vector in the nth column of the given matrix based on the value
     // of the string "action".
-    assert(A.size(0)==x.size());
+    assert(A.size(0) == x.size());
     if (action == "grab") {
       for (index i{}; i < x.size(); ++i) {
         x.set(i) = A.get(i,n);
@@ -174,15 +177,16 @@ namespace tlk {
   void swapRows(Matrix& A_OUT, Vector& b_OUT, const index r1, const index r2) {
     // This function swaps row1 and row2 of both the matrix A
     // and vector b in the system Ax=b.
+    assert(A_OUT.size(0) == b_OUT.size());
     double placeholder{};
     // swap rows in matrix
     for (index k{}; k < A_OUT.size(1); ++k) {
-      placeholder        = A_OUT.get(r1,k);
+      placeholder     = A_OUT.get(r1,k);
       A_OUT.set(r1,k) = A_OUT.get(r2,k);
       A_OUT.set(r2,k) = placeholder;
     }
     // swap rows in vector
-    placeholder      = b_OUT.get(r1);
+    placeholder   = b_OUT.get(r1);
     b_OUT.set(r1) = b_OUT.get(r2);
     b_OUT.set(r2) = placeholder;
   }
@@ -205,7 +209,7 @@ namespace tlk {
     // This function returns the linear update x = vec1 + scalar*vec2.
     // Here we choose to return by value (rather than pass x_OUT by reference)
     // in order to increase readability.
-    assert(vec1.size()==vec2.size());
+    assert(vec1.size() == vec2.size());
     index  m{vec1.size()};
     Vector x{m};
     for (index i{}; i < m; ++i) {

@@ -21,6 +21,10 @@
  * to choose a numerical method to apply. Once a selection is made, the program
  * shows the results and writes the solution vector to a file named x_soln.dat.
  *
+ * The Matrix.h and Vector.h files contain the declarations of the Matrix and
+ * Vector user-defined classes respectively, while the corresponding .cpp files
+ * contains their member function implementations.
+ *
  */
 #include "ConjugateGrad.h" // Conjugate-Gradient routines
 #include "GaussianElim.h"  // Gaussian Elimination routines
@@ -28,12 +32,11 @@
 #include "InOut.h"         // io::  routines in user-defined namespace
 #include "LinAlgToolkit.h" // tlk:: routines in user-defined namespace
 #include "LSQ.h"           // QR decomp and back-sub routines for least squares
-#include "Matrix.h"        // Matrix user-defined class
-#include "Types.h"         // type aliases mat_t and vec_t for std::vector
-#include "Vector.h"        // Vector user-defined class
+#include "Matrix.h"        // user-defined Matrix class
+#include "Types.h"         // type aliases for size_t, mat_t and vec_t
+#include "Vector.h"        // user-defined Vector class
 #include <iostream>        // std::cout and std::cin
 #include <string>          // std::string
-#include <vector>          // std::vector (dynamic array functionality)
 
 int main(int argc, char* argv[]) { // command line args will be 2 filenames
   using std::cout;
@@ -47,6 +50,7 @@ int main(int argc, char* argv[]) { // command line args will be 2 filenames
   // to get filenames, we first check for command line arguments
   std::string filename_A{};
   std::string filename_b{};
+  std::string filename_x{"x_soln.dat"};
   if (argc < 2) {
     // if not provided, we ask user to specify filename of matrix A
     // and vector b to be used in system
@@ -154,10 +158,10 @@ int main(int argc, char* argv[]) { // command line args will be 2 filenames
     x.show();
   }
 
-  // write solution vector to
-  x.write("x_soln.dat");
+  // write solution vector to file
+  x.write(filename_x);
 
-  // re-read systemfrom file in order to compute error
+  // re-read system from file in order to compute error
   A.load(filename_A);
   b.load(filename_b);
 
