@@ -1,5 +1,6 @@
 // This file contains the declaration of the Matrix class.
 #include "Types.h"
+#include <string>
 
 #ifndef MATRIX
 #define MATRIX
@@ -17,15 +18,20 @@ public:
     // default constructor for our Matrix class
   }
 
-  void   setSize(const index m, const index n);
+  void    resize(const index m, const index n);
 
-  index  getSize(const int dim);
+  index   size(const int dim) const;
 
-  void   setVal(const index i, const index j, const double a_ij);
+  double& set(const index i, const index j);
 
-  double getVal(const index i, const index j);
+  double  get(const index i, const index j) const;
 
-  void   show();
+  void    show() const;
+
+  void    load(const std::string filename);
+
+  void    write(const std::string filename) const;
+
 };
 
 #endif

@@ -14,7 +14,9 @@
  */
 #include "ConjugateGrad.h"
 #include "LinAlgToolkit.h"
+#include "Matrix.h"
 #include "Types.h"
+#include "Vector.h"
 #include <cmath>
 #include <iostream>
 #include <vector>
@@ -38,22 +40,22 @@ void testMaxIter(int num_iter, index max_iter, int step) {
   }
 }
 
-void basicCG(const mat_t& A, const vec_t& b, vec_t& x_OUT) {
+void basicCG(const Matrix& A, const Vector& b, Vector& x_OUT) {
   // this function executes the basic conjugate-gradient method
 
   // first, check that the matrix is symmetric
   tlk::checkSymm(A);
 
   // then get size of system
-  const index m{A.size()};
+  const index m{A.size(0)};
 
   // initialize residual r, initial conjugate vector p, and residual norm
   // we assume that the initial guess to the solution is x=0
-  vec_t r(m);
+  Vector r{m};
   r = tlk::makeVecCopy(b);
-  vec_t p(m);
+  Vector p{m};
   p = tlk::makeVecCopy(b);
-  double r_norm{tlk::getNorm(r)};
+  double r_norm{ r.getNorm() };
 
   // iterate until the residual falls within the desired accuracy
   int iter_counter{0};
@@ -65,7 +67,7 @@ void basicCG(const mat_t& A, const vec_t& b, vec_t& x_OUT) {
   while (r_norm > consts::tolerance) {
 
     // store y = A*b to use in new residual and constant beta
-    vec_t y(m);
+    Vector y{m};
     tlk::matVecMul(A,p,y);
     // calculate alpha to minimize obj. func. along direction p
     double alpha{ tlk::innerProd(p,r)/tlk::innerProd(p,y) };
@@ -75,7 +77,7 @@ void basicCG(const mat_t& A, const vec_t& b, vec_t& x_OUT) {
     // r = r - alpha*y = r - alpha*A*p = b - A*x - alpha*A*p = b - A*(x+alpha*p)
     r = tlk::updateVector(r,-alpha,y);
     // update the residual norm
-    r_norm = tlk::getNorm(r);
+    r_norm = r.getNorm();
     // calculate beta to obtain next conjugate vector p
     double beta{ -tlk::innerProd(r,y)/tlk::innerProd(p,y) };
     // get next conjugate vector
@@ -89,20 +91,20 @@ void basicCG(const mat_t& A, const vec_t& b, vec_t& x_OUT) {
   std::cout << "\nConvergence acheived in " << iter_counter << " iterations!\n";
 }
 
-void smartCG(const mat_t& A, const vec_t& b, vec_t& x_OUT) {
+void smartCG(const Matrix& A, const Vector& b, Vector& x_OUT) {
   // this function executes the smart conjugate-gradient method
 
   // first, check that the matrix is symmetric
   tlk::checkSymm(A);
 
   // then get size of system
-  index m{A.size()};
+  index m{A.size(0)};
 
   // initialize residual r, initial conjugate vector p, and (residual norm)^2
   // we assume that the initial guess to the solution is x=0
-  vec_t r(m);
+  Vector r{m};
   r = tlk::makeVecCopy(b);
-  vec_t p(m);
+  Vector p{m};
   p = tlk::makeVecCopy(b);
   double rTr{tlk::innerProd(r,r)}; // norm^2 = < r, r >
 
@@ -116,7 +118,7 @@ void smartCG(const mat_t& A, const vec_t& b, vec_t& x_OUT) {
   while (std::sqrt(rTr) > consts::tolerance) {
 
     // store y = A*b to use in new residual and constant beta
-    vec_t y(m);
+    Vector y{m};
     tlk::matVecMul(A,p,y);
     // calculate alpha to minimize obj. func. along direction p
     double alpha{ rTr/tlk::innerProd(p,y) };
@@ -142,7 +144,7 @@ void smartCG(const mat_t& A, const vec_t& b, vec_t& x_OUT) {
   std::cout << "\nConvergence acheived in " << iter_counter << " iterations!\n";
 }
 
-void smartPreCondCG(const mat_t& A, const vec_t& b, vec_t& x_OUT) {
+void smartPreCondCG(const Matrix& A, const Vector& b, Vector& x_OUT) {
   // this function executes the smart conjugate-gradient
   // method with pre-conditioning
 
@@ -150,17 +152,17 @@ void smartPreCondCG(const mat_t& A, const vec_t& b, vec_t& x_OUT) {
   tlk::checkSymm(A);
 
   // then get size of system
-  index m{A.size()};
+  index m{A.size(0)};
 
   // we assume that the initial guess to the solution is x=0
   // initialize residual r
-  vec_t r(m);
+  Vector r{m};
   r = tlk::makeVecCopy(b);
   // compute z using preconditoner matrix
-  vec_t z(m);
+  Vector z{m};
   tlk::diagPreCond(A,r,z);
   // initialize conjugate vector p
-  vec_t p(m);
+  Vector p{m};
   p = tlk::makeVecCopy(z);
   // initialize "error" E = rTz = < r, z >
   double E{tlk::innerProd(r,z)};
@@ -175,7 +177,7 @@ void smartPreCondCG(const mat_t& A, const vec_t& b, vec_t& x_OUT) {
   while (std::sqrt(E) > consts::tolerance) {
 
     // store y = A*b to use in new residual and constant beta
-    vec_t y(m);
+    Vector y{m};
     tlk::matVecMul(A,p,y);
     // calculate alpha to minimize obj. func. along direction p
     double alpha{ E/tlk::innerProd(p,y) };

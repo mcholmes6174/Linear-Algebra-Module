@@ -1,12 +1,11 @@
-#include "Constants.h"
-#include "Types.h"
-#include <vector>
+#include "Matrix.h"
+#include "Vector.h"
 
 #ifndef GAUSSIAN_ELIM
 #define GAUSSIAN_ELIM
 
-void pivotElim(mat_t& A, vec_t& b);
+void pivotElim(Matrix& A, Vector& b);
 
-void backSub(const mat_t& U, const vec_t& y, vec_t& x);
+void backSub(const Matrix& U, const Vector& y, Vector& x);
 
 #endif

@@ -1,5 +1,6 @@
 // This file contains the declaration of the Matrix class.
 #include "Types.h"
+#include <string>
 
 #ifndef VECTOR
 #define VECTOR
@@ -25,20 +26,27 @@ public:
   }
 
   // trivial member function to return the size of the vector
-  index  getSize() { return m_vec.size(); }
+  index   size() const { return m_vec.size(); }
 
   // the following member functions are defined within the Vector.cpp file
   // because they are > 1 line of code
 
-  void   setSize(const index m);
+  void    resize(const index m);
 
-  void   setVal(const index i, const double v_i);
+  double& set(const index i);
 
-  double getVal(const index i);
+  double  get(const index i) const;
 
-  void   show();
+  void    normalize();
 
-  double getNorm(const double p = 2.0);
+  void    show() const;
+
+  double  getNorm(const double p = 2.0) const;
+
+  void    load(const std::string filename);
+
+  void    write(const std::string filename) const;
+
 };
 
 #endif

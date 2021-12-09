@@ -1,12 +1,13 @@
-#include "Types.h"
+#include "Matrix.h"
+#include "Vector.h"
 
 #ifndef CONJUGATE_GRAD
 #define CONJUGATE_GRAD
 
-void basicCG(       const mat_t& A, const vec_t& b, vec_t& x);
+void basicCG(       const Matrix& A, const Vector& b, Vector& x);
 
-void smartCG(       const mat_t& A, const vec_t& b, vec_t& x);
+void smartCG(       const Matrix& A, const Vector& b, Vector& x);
 
-void smartPreCondCG(const mat_t& A, const vec_t& b, vec_t& x);
+void smartPreCondCG(const Matrix& A, const Vector& b, Vector& x);
 
 #endif

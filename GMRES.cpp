@@ -11,11 +11,13 @@
  #include "GMRES.h"
  #include "LinAlgToolkit.h"
  #include "LSQ.h"
+ #include "Matrix.h"
  #include "Types.h"
+ #include "Vector.h"
  #include <iostream>
  #include <string>
 
-void applyArnoldi(const mat_t& A, mat_t& Q_OUT, mat_t& H_OUT, const index j) {
+void applyArnoldi(const Matrix& A, Matrix& Q_OUT, Matrix& H_OUT, const index j) {
   // This function applies the jth step of the Arnoldi Algorithm in order to
   // compute an orthonormal basis for the Krylov subspace K_n(A,b), where the
   // vector b is implicitly contained in the first column of Q as
@@ -26,75 +28,74 @@ void applyArnoldi(const mat_t& A, mat_t& Q_OUT, mat_t& H_OUT, const index j) {
   // becoming the n+1 by n Hessenberg version of A on exit.
 
   // get sizes
-  index m{ A.size() };
+  index m{ A.size(0) };
 
   // declare and zero-initialize column vectors
-  vec_t q_next(m);                    // q_{j+1}
-  vec_t q_j(m);                       // q_j
-  tlk::nthColumn("grab",Q_OUT,q_j,j); // get q_j from Q_OUT
-  tlk::matVecMul(A,q_j,q_next);       // q_{j+1} = A*q_j
+  Vector q_next{m};                    // q_{j+1}
+  Vector q_j{m};                       // q_j
+  tlk::nthColumn("grab",Q_OUT,q_j,j);  // get q_j from Q_OUT
+  tlk::matVecMul(A,q_j,q_next);        // q_{j+1} = A*q_j
 
   // loop under index j and modify q to ensure mutual orthogonality
   for (index i{}; i <= j; ++i) {
-    H_OUT[i][j] = tlk::innerProd(q_next,q_j);  // < q_{j+1}, q_i >
-    vec_t q_i(m);
+    H_OUT.set(i,j) = tlk::innerProd(q_next,q_j);  // < q_{j+1}, q_i >
+    Vector q_i{m};
     tlk::nthColumn("grab",Q_OUT,q_i,i);
-    q_next = tlk::updateVector(q_next,-H_OUT[i][j],q_i); // q_{j+1} += -h_{i,j}*q_i
+    q_next = tlk::updateVector(q_next,-H_OUT.get(i,j),q_i); // q_{j+1} += -h_{i,j}*q_i
   }
 
   // normalize the column vector q
-  H_OUT[j+1][j] = tlk::getNorm(q_next);             // get norm of q_{i+j}
-  if (std::abs(H_OUT[j+1][j]) < consts::epsilon) {  // if zero, stop
+  H_OUT.set(j+1,j) = q_next.getNorm();             // get norm of q_{i+j}
+  if (std::abs(H_OUT.get(j+1,j)) < consts::epsilon) {  // if zero, stop
     std::cerr << "Divide by zero warning.";
     // std::exit(0);
   }
-  q_next = tlk::makeVecCopy(q_next, 1.0/H_OUT[j+1][j] );
+  q_next = tlk::makeVecCopy(q_next, 1.0/H_OUT.get(j+1,j) );
 
   /// store q_{j+1} in (j+1)th column of Q
   tlk::nthColumn("give",Q_OUT,q_next,j+1);
 
 }
 
-void multiplyByQ(const mat_t& Q, const vec_t& y, vec_t& x_OUT) {
+void multiplyByQ(const Matrix& Q, const Vector& y, Vector& x_OUT) {
   // this function performs the multiplication x = Q*y
 
   // get size of m x n system x_n = Q_n*y_n
-  index m{    Q.size()   };
-  index n{ Q[0].size()-1 };
+  index m{ Q.size(0)   };
+  index n{ Q.size(1)-1 };
 
   // multiply
   for (index i{}; i < m; ++i) {
     for (index j{}; j < n; ++j) {
-      x_OUT[i] += Q[i][j] * y[j];
+      x_OUT.set(i) += Q.get(i,j) * y.get(j);
     }
   }
 
 }
 
-void applyGMRES(mat_t& A_OUT, vec_t& b_OUT, vec_t& x_OUT) {
+void applyGMRES(Matrix& A_OUT, Vector& b_OUT, Vector& x_OUT) {
   // This function executes the GMRES method to solve the square linear system
   // Ax=b.
 
   // first, we get the size of the system
-  const index m{A_OUT.size()};
-  const index max_dim{A_OUT[0].size()};
+  const index m{A_OUT.size(0)};
+  const index max_dim{A_OUT.size(1)};
 
   // and we begin the iterative process with
   index n{1};
   // which will specify the dimension of the Krylov subspace we minimize over
 
   // We declare and initialize vector r_0, scalar beta, and matries Q_n and H_n
-  vec_t  r(m);
+  Vector r{m};
   r =    tlk::makeVecCopy(b_OUT);
-  double beta{ tlk::getNorm(r) };
-  mat_t  Q_np1(m,   vec_t(n+1));
-  mat_t  H_n(n+1,   vec_t(n));
+  double beta{ r.getNorm() };
+  Matrix Q_np1{ m,  n+1};
+  Matrix H_n  {n+1,  n };
 
   // store (1/beta)*r in first column of Q_n (a hassle b/c C is row major)
   // this is the first vector in our orthonormal basis
-  for (index i{}; auto r_i : r) {
-    Q_np1[i][0] = (1.0/beta)*r_i;
-    ++i;
+  for (index i{}; i < r.size(); ++i) {
+    Q_np1.set(i,0) = (1.0/beta)*r.get(i);
   }
 
   // now, we iterate over n = 1, 2, 3, ..., A.size() until the desired tolerance
@@ -117,10 +118,10 @@ void applyGMRES(mat_t& A_OUT, vec_t& b_OUT, vec_t& x_OUT) {
     // std::cout << "\nH\n";
     // tlk::showMatrix(H_n);
 
-    // find y that minimizes ||beta*e1 - H_n*y||vec_t y(n);
-    vec_t v_diag(n);
-    vec_t beta_e1(n+1);
-    beta_e1[0] = beta;
+    // find y that minimizes ||beta*e1 - H_n*y||Vector y(n);
+    Vector v_diag{n};
+    Vector beta_e1{n+1};
+    beta_e1.set(0) = beta;
     decompQR(H_n, beta_e1, v_diag);
 
     // for debugging
@@ -131,7 +132,7 @@ void applyGMRES(mat_t& A_OUT, vec_t& b_OUT, vec_t& x_OUT) {
     // std::cout << "\nH\n";
     // tlk::showMatrix(H_n);
 
-    vec_t y(n);
+    Vector y{n};
     solveTriLSQ(H_n, beta_e1, y);
 
     // for debugging
@@ -143,7 +144,7 @@ void applyGMRES(mat_t& A_OUT, vec_t& b_OUT, vec_t& x_OUT) {
 
     // for debugging
     std::cout << "\nx_n\n";
-    tlk::showVector(x_OUT);
+    x_OUT.show();
 
     // check whether we have reached the theoretical max
     if (n < max_dim) {
@@ -156,12 +157,9 @@ void applyGMRES(mat_t& A_OUT, vec_t& b_OUT, vec_t& x_OUT) {
       break;
     }
 
-    // add an extra column to Q_np1 and an extra row and column to H_n
-    for (index i{}; i < m; ++i) {
-      Q_np1[i].resize(n+1);
-      if (i == 0)  H_n.resize(n+1);
-      if (i < n+1) H_n[i].resize(n);
-    }
+    // resize Q_{n+1} and H_n for next iteration
+    Q_np1.resize(m,n+1);
+    H_n.resize(n+1,n);
 
   }
 

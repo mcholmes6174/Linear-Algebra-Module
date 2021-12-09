@@ -1,10 +1,11 @@
-#include "Types.h"
+#include "Matrix.h"
+#include "Vector.h"
 
 #ifndef LSQ
 #define LSQ
 
-void decompQR(mat_t& A_OUT, vec_t& b_OUT, vec_t& Q_OUT);
+void decompQR(Matrix& A_OUT, Vector& b_OUT, Vector& Q_OUT);
 
-void solveTriLSQ(const mat_t& A_OUT, const vec_t& b, vec_t& x_OUT);
+void solveTriLSQ(const Matrix& A_OUT, const Vector& b, Vector& x_OUT);
 
 #endif

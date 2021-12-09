@@ -1,5 +1,5 @@
-#include <string>
 #include "Types.h"
+#include <string>
 
 #ifndef IN_OUT
 #define IN_OUT

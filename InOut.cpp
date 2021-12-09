@@ -7,7 +7,9 @@
  */
  #include "InOut.h"
  #include "LinAlgToolkit.h"
+ #include "Matrix.h"
  #include "Types.h"
+ #include "Vector.h"
  #include <fstream>
  #include <iostream>
  #include <string>
@@ -111,8 +113,8 @@ namespace inout {
   }
 
   void generateSymmSystem(const index m, const index n) {
-    mat_t A(m,vec_t(n));
-    vec_t b(n);
+    Matrix A{m,n};
+    Vector b{m};
     double fill{1.0};
     // fill the arrays with nonzero values
     for (index i{}; i < m; ++i) {
@@ -121,20 +123,20 @@ namespace inout {
         switch (i==j) {
           case true: {
             // we create an ascending diagonal: diag(A)=[1,2,3,4,...,m]
-            A      [i][j] = i+1;
-            b      [i]    = i+1;
+            A.set(i,j) = i+1;
+            b.set(i)   = i+1;
             break;
           }
           default: {
             // we set the off-diagonal to be constant: off_diag(A)=fill
-            A      [i][j] = fill;
+            A.set(i,j) = fill;
             break;
           }
         }
       }
     }
-    tlk::writeMatrix("mat_symm.dat",A);
-    tlk::writeVector("vec_symm.dat",b);
+    A.write("mat_symm.dat");
+    b.write("mat_symm.dat");
   }
 
 }
