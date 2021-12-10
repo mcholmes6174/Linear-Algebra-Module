@@ -173,5 +173,6 @@ int main(int argc, char* argv[]) { // command line args will be 2 filenames
 
   cout << "\nGoodbye\n";
   cout << "*******************************************************************";
+  cout << '\n';
   return 0;
 }
