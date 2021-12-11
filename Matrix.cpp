@@ -4,6 +4,7 @@
 #include "LinAlgToolkit.h"
 #include "Matrix.h"
 #include "Types.h"
+#include "Vector.h"
 #include <cassert>
 #include <cmath>
 #include <fstream>
@@ -29,6 +30,14 @@ double& Matrix::set(const index i, const index j) {
   // to set the value of an individual entry
   assert(i < m_row && j < m_col);
   return m_mat[i][j];
+}
+
+void Matrix::setCol(const index j, const Vector x) {
+  // to set the jth column of equal to a vector
+  assert(m_row == x.size());
+  for (index i{}; i < m_row; ++i) {
+    m_mat[i][j] = x.get(i);
+  }
 }
 
 double Matrix::get(const index i, const index j) const {

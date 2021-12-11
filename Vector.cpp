@@ -2,6 +2,7 @@
 // Vector class
 #include "Constants.h"
 #include "LinAlgToolkit.h"
+#include "Matrix.h"
 #include "Types.h"
 #include "Vector.h"
 #include <cassert>

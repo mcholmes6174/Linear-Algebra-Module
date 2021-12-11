@@ -22,18 +22,19 @@ namespace inout {
     using std::cout;
     constexpr int n{6};
     std::string method_list[n]{
-      "Gaussian Elimination with Pivoting and Back-Substitution",
-      "Conjugate-Gradient",
+      "Gaussian Elimination with Pivoting",
+      "Basic Conjugate-Gradient",
       "Smart Conjugate-Gradient",
       "Smart Diagonally-Preconditioned Conjugate-Gradient",
       "Generalized Minimal Residual (GMRES)",
-      "Least Squares via Householder transformation QR decomposition"
+      "Least Squares via QR decomposition (w/ Householder transformations)"
     };
-    for (int i{}; i < n; ++i) {
-      if (i == 0) cout << '\n';
-      cout << "\n " << i << ") " << method_list[i] << '\n';
-      if (i == n-1) cout << '\n';
+    cout << '\n';
+    for (int i{}; auto method : method_list) {
+      cout << "\n " << i << ") " << method << '\n';
+      ++i;
     }
+    cout << '\n';
     return n;
   }
 
@@ -107,6 +108,18 @@ namespace inout {
         cout << "\nSystem is overdetermined,"
              << " please choose method accordingly.\n";
       }
+      /************************************************************************/
+      /*********** TEMPORARY CHECK WHILE GMRES IS BEING IMPLEMENTED ***********/
+      /************************************************************************/
+      // we comment this section out while we debug GMRES
+      if (user_input == 4) {
+        not_valid = true;
+        cout << "\nThe GMRES method is still being developed, please choose a"
+             << " different method.\n";
+      }
+      /************************************************************************/
+      /************************************************************************/
+      /************************************************************************/
     }
     return user_input;
   }

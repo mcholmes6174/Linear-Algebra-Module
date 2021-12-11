@@ -41,7 +41,7 @@ namespace tlk {
 
   void   matVecMul(const Matrix&, const Vector&, Vector& y_OUT);
 
-  void   nthColumn(const std::string, Matrix&, Vector&, const index);
+  void   getCol(const index j, Matrix& A, Vector& x);
 
   index  readNthVal(const std::string, const int);
 

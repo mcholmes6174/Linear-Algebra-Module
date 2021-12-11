@@ -1,5 +1,6 @@
 // This file contains the declaration of the Matrix class.
 #include "Types.h"
+#include "Vector.h"
 #include <string>
 
 #ifndef MATRIX
@@ -23,6 +24,8 @@ public:
   index   size(const int dim) const;
 
   double& set(const index i, const index j);
+
+  void    setCol(const index j, const Vector x);
 
   double  get(const index i, const index j) const;
 

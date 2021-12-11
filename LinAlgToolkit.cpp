@@ -143,21 +143,12 @@ namespace tlk {
     }
   }
 
-  void nthColumn(const std::string action, Matrix& A,
-                                           Vector& x, const index n) {
-    // This function either returns the nth column of a matrix as a vector or
-    // stores a vector in the nth column of the given matrix based on the value
-    // of the string "action".
+  void getCol(const index j, Matrix& A, Vector& x) {
+    // This function gets the jth column from the matrix A and stores it in the
+    // vector x.
     assert(A.size(0) == x.size());
-    if (action == "grab") {
-      for (index i{}; i < x.size(); ++i) {
-        x.set(i) = A.get(i,n);
-      }
-    }
-    else if (action == "give") {
-      for (index i{}; i < x.size(); ++i) {
-        A.set(i,n) = x.get(i);
-      }
+    for (index i{}; i < x.size(); ++i) {
+      x.set(i) = A.get(i,j);
     }
   }
 
