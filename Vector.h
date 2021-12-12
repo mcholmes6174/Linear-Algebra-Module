@@ -1,4 +1,4 @@
-// This file contains the declaration of the Matrix class.
+// This file contains the declaration of the Vector class
 #include "Types.h"
 #include <string>
 
@@ -33,10 +33,6 @@ public:
 
   void    resize(const index m);
 
-  double& set(const index i);
-
-  double  get(const index i) const;
-
   void    normalize();
 
   void    show() const;
@@ -47,6 +43,27 @@ public:
 
   void    write(const std::string filename) const;
 
+  // here are some member functions used to perform operator overloading
+
+  double& operator()(const index i);
+
+  double  operator()(const index i) const;
+
+  Vector& operator=(const Vector& x);
+
 };
+
+// here we declare normal functions in order to perform operator overloading
+// so that we can use operators such as + and - with our Vector class
+
+Vector operator-(const Vector&);
+
+Vector operator+(const Vector&, const Vector&);
+
+Vector operator-(const Vector&, const Vector&);
+
+Vector operator*(const double,  const Vector&);
+
+Vector operator*(const Vector&, const double );
 
 #endif

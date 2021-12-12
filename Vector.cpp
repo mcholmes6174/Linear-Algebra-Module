@@ -18,18 +18,6 @@ void Vector::resize(const index m) {
   m_vec.resize(m_row);
 }
 
-double& Vector::set(const index i) {
-  // to set the value of a particular entry
-  assert(i < m_row);
-  return m_vec[i];
-}
-
-double Vector::get(const index i) const {
-  // to get the value stored at index i
-  assert(i < m_row);
-  return m_vec[i];
-}
-
 void Vector::normalize() {
   double norm{ getNorm() };
   for (index i{}; i < m_vec.size(); ++i) {
@@ -103,4 +91,73 @@ void Vector::write(const std::string filename) const {
          << std::left << std::showpoint << v_i << '\n';
   }
   // when outf goes out of scope, the ofstream destructor will close the file
+}
+
+//*****************************************************************************/
+// here we define member functions in order to perform operator overloading
+//*****************************************************************************/
+
+double& Vector::operator()(const index i) {
+  // here we allow subscripting on our vector objects
+  assert(i < m_row);
+  return m_vec[i];
+}
+
+double  Vector::operator()(const index i) const {
+  // here we allow subscripting on our *constant* vector objects
+  assert(i < m_row);
+  return m_vec[i];
+}
+
+Vector& Vector::operator=(const Vector& x) {
+  // here we create an assignment operator
+  if (this == &x) return *this; // self-assignment guard
+
+  m_row = x.m_row;
+  m_vec = x.m_vec;
+
+  return *this;
+}
+
+//*****************************************************************************/
+// below we define *normal* functions in order to perform operator overloading
+//*****************************************************************************/
+
+Vector operator-(const Vector& x) {
+  // here we negate all the elements of a vector x
+  Vector minus_x{x.size()};
+  for (index i{}; i < x.size(); ++i) {
+    minus_x(i) = -x(i);
+  }
+  return minus_x;
+}
+
+Vector operator+(const Vector& x, const Vector& y) {
+  // here we take the componentwise sum of two vectors x and y
+  assert(x.size() == y.size());
+  Vector z{x.size()};
+  for (index i{}; i < x.size(); ++i) {
+    z(i) = x(i) + y(i);
+  }
+  return z;
+}
+
+Vector operator-(const Vector& x, const Vector& y) {
+  // here we take the componentwise difference of two vectors x and y
+  assert(x.size() == y.size());
+  return x + (-y); // we can now use the Vector operators defined above
+}
+
+Vector operator*(const double scalar, const Vector& x) {
+  // here we scale a vector
+  Vector scaled_x{x.size()};
+  for (index i{}; i < x.size(); ++i) {
+    scaled_x(i) = scalar*x(i);
+  }
+  return scaled_x;
+}
+
+Vector operator*(Vector& x, const double scalar) {
+  // we want the scaling operation to be symmetric
+  return scalar*x;
 }

@@ -26,24 +26,12 @@ index Matrix::size(const int dim) const {
   else          return m_mat[0].size();
 }
 
-double& Matrix::set(const index i, const index j) {
-  // to set the value of an individual entry
-  assert(i < m_row && j < m_col);
-  return m_mat[i][j];
-}
-
 void Matrix::setCol(const index j, const Vector x) {
   // to set the jth column of equal to a vector
   assert(m_row == x.size());
   for (index i{}; i < m_row; ++i) {
-    m_mat[i][j] = x.get(i);
+    m_mat[i][j] = x(i);
   }
-}
-
-double Matrix::get(const index i, const index j) const {
-  // to get the value stored at index i,j
-  assert(i < m_row && j < m_col);
-  return m_mat[i][j];
 }
 
 void Matrix::show() const {
@@ -116,4 +104,106 @@ void Matrix::write(const std::string filename) const {
     outf << '\n';
   }
   // when outf goes out of scope, the ofstream destructor will close the file
+}
+
+//*****************************************************************************/
+// here are member functions for operator overloading
+//*****************************************************************************/
+
+double& Matrix::operator()(const index i, const index j) {
+  // here we allow subscripting on our Matrix object
+  assert(i < m_row && j < m_col);
+  return m_mat[i][j];
+}
+
+double  Matrix::operator()(const index i, const index j) const {
+  // here we allow subscripting on *constant* Matrix objects
+  assert(i < m_row && j < m_col);
+  return m_mat[i][j];
+}
+
+// Matrix& Matrix::operator=(const Matrix& A) {
+//   // here we create an assignment operator
+//   if (this == &A) return *this; // self-assignment guard
+//
+//   m_row = A.m_row;
+//   m_col = A.m_col;
+//   m_mat = A.m_mat;
+//
+//   return *this;
+// }
+
+//*****************************************************************************/
+// here are regular functions for operator overloading
+//*****************************************************************************/
+
+Matrix operator-(const Matrix& A) {
+  // here we negate all the elements of a Matrix A
+  Matrix minus_A{A.size(0),A.size(1)};
+  for (index i{}; i < A.size(0); ++i) {
+    for (index j{}; j < A.size(1); ++j) {
+        minus_A(i,j) = -A(i,j);
+    }
+  }
+  return minus_A;
+}
+
+Matrix operator+(const Matrix& A, const Matrix& B) {
+  // here we take the componentwise sum of two Matrices A and B
+  assert(A.size(0) == B.size(0) && A.size(1) == B.size(1));
+  Matrix C{A.size(0),A.size(1)};
+  for (index i{}; i < A.size(0); ++i) {
+    for (index j{}; j < A.size(1); ++j) {
+        C(i,j) = A(i,j) + B(i,j);
+    }
+  }
+  return C;
+}
+
+Matrix operator-(const Matrix& A, const Matrix& B) {
+  // here we take the componentwise difference of two Matrices A and B
+  assert(A.size(0) == B.size(0) && A.size(1) == B.size(1));
+  return A + (-B); // we can now use the Vector operators defined above
+}
+
+Matrix operator*(const double scalar, const Matrix& A) {
+  // here we scale a matrix
+  Matrix scaled_A{A.size(0), A.size(1)};
+  for (index i{}; i < A.size(0); ++i) {
+    for (index j{}; j < A.size(1); ++j) {
+      scaled_A(i,j) = scalar*A(i,j);
+    }
+  }
+  return scaled_A;
+}
+
+Matrix operator*(const Matrix& A, const double scalar) {
+  // we want scaling to be symmetric
+  return scalar*A;
+}
+
+Vector operator*(const Matrix& A, const Vector& x) {
+  // here we perform matrix-vector multiplication
+  assert(A.size(1) == x.size());
+  Vector y{x.size()};
+  for (index i{}; i < x.size(); ++i) {
+    for (index j{}; j < A.size(1); ++j) {
+      y(i) = A(i,j)*x(j);
+    }
+  }
+  return y;
+}
+
+Matrix operator*(const Matrix& A, const Matrix& B) {
+  // here we perform matrix-matrix multiplication
+  assert(A.size(1) == B.size(0));
+  Matrix C{A.size(0), B.size(1)};
+  for (index i{}; i < A.size(0); ++i) {
+    for (index j{}; j < B.size(1); ++j) {
+      for (index k{}; k < B.size(1); ++k) {
+        C(i,j) += A(i,k)*B(k,j);
+      }
+    }
+  }
+  return C;
 }

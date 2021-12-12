@@ -1,4 +1,4 @@
-// This file contains the declaration of the Matrix class.
+// This file contains the declaration of the Matrix class
 #include "Types.h"
 #include "Vector.h"
 #include <string>
@@ -23,11 +23,7 @@ public:
 
   index   size(const int dim) const;
 
-  double& set(const index i, const index j);
-
   void    setCol(const index j, const Vector x);
-
-  double  get(const index i, const index j) const;
 
   void    show() const;
 
@@ -35,6 +31,22 @@ public:
 
   void    write(const std::string filename) const;
 
+  double& operator()(const index i, const index j);
+
+  double  operator()(const index i, const index j) const;
+
+  // Matrix& operator=(const Matrix* A);
+
 };
+
+// here are regular functions for operator overloading
+
+Matrix operator-(const Matrix&);
+
+Matrix operator+(const Matrix&, const Matrix&);
+
+Matrix operator-(const Matrix&, const Matrix&);
+
+Vector operator*(const Matrix&, const Vector&);
 
 #endif

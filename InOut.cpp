@@ -135,13 +135,13 @@ namespace inout {
         switch (i==j) {
           case true: {
             // we create an ascending diagonal: diag(A)=[1,2,3,4,...,m]
-            A.set(i,j) = i+1;
-            b.set(i)   = i+1;
+            A(i,j) = i+1;
+            b(i)   = i+1;
             break;
           }
           default: {
             // we set the off-diagonal to be constant: off_diag(A)=fill
-            A.set(i,j) = fill;
+            A(i,j) = fill;
             break;
           }
         }

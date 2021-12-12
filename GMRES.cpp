@@ -41,22 +41,22 @@ void applyArnoldi(const Matrix& A, Matrix& Q_OUT, Matrix& H_OUT, const index j) 
 
   // loop under index j and modify q to ensure mutual orthogonality
   for (index i{}; i <= j; ++i) {
-    H_OUT.set(i,j) = tlk::innerProd(q_next,q_j);  // < q_{j+1}, q_i >
+    H_OUT(i,j) = tlk::innerProd(q_next,q_j);  // < q_{j+1}, q_i >
     Vector q_i{m};
     tlk::getCol(i,Q_OUT,q_i); // get q_i from Q
-    q_next = tlk::updateVector(q_next,-H_OUT.get(i,j),q_i); // set q_{j+1} -= h_{i,j}*q_i
+    q_next = tlk::updateVector(q_next,-H_OUT(i,j),q_i); // set q_{j+1} -= h_{i,j}*q_i
   }
 
   // for debugging
   std::cout << "\nloop under index j and modify q to ensure mutual orthogonality Complete\n";
 
   // normalize the column vector q
-  H_OUT.set(j+1,j) = q_next.getNorm();                 // get norm of q_{i+j}
-  if (std::abs(H_OUT.get(j+1,j)) < consts::epsilon) {  // if zero, stop
+  H_OUT(j+1,j) = q_next.getNorm();                 // get norm of q_{i+j}
+  if (std::abs(H_OUT(j+1,j)) < consts::epsilon) {  // if zero, stop
     std::cerr << "Divide by zero warning.";
     // std::exit(0);
   }
-  q_next = tlk::makeVecCopy(q_next, 1.0/H_OUT.get(j+1,j) );
+  q_next = tlk::makeVecCopy(q_next, 1.0/H_OUT(j+1,j) );
 
   // for debugging
   std::cout << "\nnormalize the column vector q Complete\n";
@@ -79,7 +79,7 @@ void multiplyByQ(const Matrix& Q, const Vector& y, Vector& x_OUT) {
   // multiply
   for (index i{}; i < m; ++i) {
     for (index j{}; j < n; ++j) {
-      x_OUT.set(i) += Q.get(i,j) * y.get(j);
+      x_OUT(i) += Q(i,j) * y(j);
     }
   }
 
@@ -109,7 +109,7 @@ void applyGMRES(Matrix& A_OUT, Vector& b_OUT, Vector& x_OUT) {
   // (a hassle b/c C is row major)
   // this is the first vector in our orthonormal basis for the Krylov subspace
   for (index i{}; i < m; ++i) {
-    Q_np1.set(i,0) = (1.0/beta)*r.get(i);
+    Q_np1(i,0) = (1.0/beta)*r(i);
   }
 
   // now, we iterate over n = 1, 2, 3, ..., n_max until the
@@ -136,7 +136,7 @@ void applyGMRES(Matrix& A_OUT, Vector& b_OUT, Vector& x_OUT) {
     // find y that minimizes ||beta*e1 - H_n*y||Vector y(n);
     Vector v_diag{n};
     Vector beta_e1{n+1};
-    beta_e1.set(0) = beta;
+    beta_e1(0) = beta;
     decompQR(H_n, beta_e1, v_diag);
 
     // for debugging

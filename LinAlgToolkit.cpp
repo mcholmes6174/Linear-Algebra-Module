@@ -63,7 +63,7 @@ namespace tlk {
     for (index i{}; i < A.size(0); ++i) {
       for (index j{}; j < i; ++j) {
         try {
-          if (A.get(i,j) != A.get(j,i)) {
+          if (A(i,j) != A(j,i)) {
             throw "Matrix is not symmetric! C-G method will not be successful.";
           }
         }
@@ -82,7 +82,7 @@ namespace tlk {
     // argument.
     assert(r.size() == z_OUT.size() && r.size() == M.size(0));
     for (index i{}; i < r.size(); ++i) {
-      z_OUT.set(i) = (1.0/M.get(i,i)) * r.get(i);
+      z_OUT(i) = (1.0/M(i,i)) * r(i);
     }
   }
 
@@ -93,9 +93,7 @@ namespace tlk {
     // forward declaration necessary if we are to keep alphabetical order
     void matVecMul(const Matrix&, const Vector&, Vector& y_OUT);
     matVecMul(A,x,err_OUT);       // multiply A*x
-    for (index i{}; i < x.size(); ++i) {
-      err_OUT.set(i) -= b.get(i); // subtract b
-    }
+    err_OUT = err_OUT - b;        // subtract b
   }
 
   double innerProd(const Vector& x, const Vector& y) {
@@ -103,7 +101,7 @@ namespace tlk {
     assert(x.size() == y.size());
     double product{};
     for (index i{}; i < x.size(); ++i) {
-      product += x.get(i)*y.get(i);
+      product += x(i)*y(i);
     }
     return product;
   }
@@ -116,7 +114,7 @@ namespace tlk {
     for (index i{}; i < A.size(0); ++i) {
       for (index j{}; j < B.size(1); ++j) {
         for (index k{}; k < B.size(0); ++k) {
-          C_OUT.set(i,j) += A.get(i,k) * B.get(k,j);
+          C_OUT(i,j) += A(i,k) * B(k,j);
         }
       }
     }
@@ -127,7 +125,7 @@ namespace tlk {
     index m{ x.size() };
     Vector x_copy{m};
     for (index i{}; i < m; ++i) {
-      x_copy.set(i) = scalar*x.get(i);
+      x_copy(i) = scalar*x(i);
     }
     // we return by value here so that a copy is made automatically
     return x_copy;
@@ -138,7 +136,7 @@ namespace tlk {
     assert(A.size(0) == y_OUT.size() && A.size(1) == x.size());
     for (index i{}; i < A.size(0); ++i) {
       for (index j{}; j < A.size(1); ++j) {
-        y_OUT.set(i) += A.get(i,j) * x.get(j);
+        y_OUT(i) += A(i,j) * x(j);
       }
     }
   }
@@ -148,7 +146,7 @@ namespace tlk {
     // vector x.
     assert(A.size(0) == x.size());
     for (index i{}; i < x.size(); ++i) {
-      x.set(i) = A.get(i,j);
+      x(i) = A(i,j);
     }
   }
 
@@ -172,14 +170,14 @@ namespace tlk {
     double placeholder{};
     // swap rows in matrix
     for (index k{}; k < A_OUT.size(1); ++k) {
-      placeholder     = A_OUT.get(r1,k);
-      A_OUT.set(r1,k) = A_OUT.get(r2,k);
-      A_OUT.set(r2,k) = placeholder;
+      placeholder     = A_OUT(r1,k);
+      A_OUT(r1,k) = A_OUT(r2,k);
+      A_OUT(r2,k) = placeholder;
     }
     // swap rows in vector
-    placeholder   = b_OUT.get(r1);
-    b_OUT.set(r1) = b_OUT.get(r2);
-    b_OUT.set(r2) = placeholder;
+    placeholder   = b_OUT(r1);
+    b_OUT(r1) = b_OUT(r2);
+    b_OUT(r2) = placeholder;
   }
 
   Matrix transpose(const Matrix& A) {
@@ -189,7 +187,7 @@ namespace tlk {
     Matrix B{m,n};
     for (index i{}; i < n; ++i) {
       for (index j{}; j < m; --j) {
-        B.set(i,j) = A.get(j,i);
+        B(i,j) = A(j,i);
       }
     }
     return B;
@@ -204,7 +202,7 @@ namespace tlk {
     index  m{vec1.size()};
     Vector x{m};
     for (index i{}; i < m; ++i) {
-      x.set(i) = vec1.get(i) + scalar*vec2.get(i);
+      x(i) = vec1(i) + scalar*vec2(i);
     }
     return x;
   }
