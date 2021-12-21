@@ -180,10 +180,10 @@ Matrix operator*(const Matrix& A, const double scalar) {
 Vector operator*(const Matrix& A, const Vector& x) {
   // to perform matrix-vector multiplication
   assert(A.size(1) == x.size());
-  Vector y{x.size()};
-  for (index i{}; i < x.size(); ++i) {
+  Vector y{A.size(0)};
+  for (index i{}; i < A.size(0); ++i) {
     for (index j{}; j < A.size(1); ++j) {
-      y(i) = A(i,j)*x(j);
+      y(i) += A(i,j)*x(j);
     }
   }
   return y;
@@ -240,7 +240,7 @@ std::ostream& operator<<(std::ostream& out, const Matrix& A) {
         else if (i < consts::max_out_size/2 && j >= consts::max_out_size/2) {
           if (j == consts::max_out_size/2) out << ". . .\t";
           out << std::setw(consts::dispPrec+2) << std::right << std::showpoint
-              << A( i, A.size(1)-(j+1) ) << '\t';
+              << A( i, A.size(1) -consts::max_out_size +j ) << '\t';
         }
         // Case 3: lower left corner => print as usual but include vertical
         //         "..." between upper and lower blocks
@@ -263,13 +263,14 @@ std::ostream& operator<<(std::ostream& out, const Matrix& A) {
             }
           }
           out << std::setw(consts::dispPrec+2) << std::right << std::showpoint
-              << A( A.size(0)-(i+1), j ) << '\t';
+              << A( A.size(0) -consts::max_out_size +i, j ) << '\t';
         }
         // Case 4: lower right corner => print as usual
         else {
           if (j == consts::max_out_size/2) out << ". . .\t";
           out << std::setw(consts::dispPrec+2) << std::right << std::showpoint
-              << A( A.size(0)-(i+1), A.size(1)-(j+1) ) << '\t';
+              << A( A.size(0) -consts::max_out_size +i,
+                    A.size(1) -consts::max_out_size +j ) << '\t';
         }
       }
     }

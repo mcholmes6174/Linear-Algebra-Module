@@ -30,16 +30,7 @@ namespace tlk {
 
   void   diagPreCond(const Matrix&, const Vector&, Vector& z_OUT);
 
-  void   getError(const Matrix&, const Vector&, const Vector&, Vector& err_OUT);
-
   double innerProd(const Vector&, const Vector&);
-
-  void   matMul(const Matrix&, const Matrix&, Matrix& C_OUT);
-
-  // we return by value here b/c we want a copy
-  Vector makeVecCopy(const Vector&, const double scalar=1.0);
-
-  void   matVecMul(const Matrix&, const Vector&, Vector& y_OUT);
 
   void   getCol(const index j, Matrix& A, Vector& x);
 
@@ -49,9 +40,6 @@ namespace tlk {
 
   // we return by value here to avoid resizing and additional transpositions
   Matrix transpose(const Matrix&);
-
-  // we return by value here to increase readability
-  Vector updateVector(const Vector&, const double, const Vector&);
 
 }
 

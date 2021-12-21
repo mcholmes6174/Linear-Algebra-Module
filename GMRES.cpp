@@ -31,10 +31,10 @@ void applyArnoldi(const Matrix& A, Matrix& Q_OUT, Matrix& H_OUT, const index j) 
   index m{ A.size(0) };
 
   // declare and zero-initialize column vectors
-  Vector q_next{m};                    // q_{j+1}
-  Vector q_j{m};                       // q_j
-  tlk::getCol(j,Q_OUT,q_j);  // get q_j from Q
-  tlk::matVecMul(A,q_j,q_next);        // set q_{j+1} = A*q_j
+  Vector q_next{m};            // q_{j+1}
+  Vector q_j{m};               // q_j
+  tlk::getCol(j,Q_OUT,q_j);    // get q_j from Q
+  q_next = A*q_j;              // set q_{j+1} = A*q_j
 
   // for debugging
   std::cout << "\ndeclare and zero-initialize column vectors Complete\n";
@@ -44,7 +44,7 @@ void applyArnoldi(const Matrix& A, Matrix& Q_OUT, Matrix& H_OUT, const index j) 
     H_OUT(i,j) = tlk::innerProd(q_next,q_j);  // < q_{j+1}, q_i >
     Vector q_i{m};
     tlk::getCol(i,Q_OUT,q_i); // get q_i from Q
-    q_next = tlk::updateVector(q_next,-H_OUT(i,j),q_i); // set q_{j+1} -= h_{i,j}*q_i
+    q_next = q_next - H_OUT(i,j)*q_i; // set q_{j+1} -= h_{i,j}*q_i
   }
 
   // for debugging
@@ -56,7 +56,7 @@ void applyArnoldi(const Matrix& A, Matrix& Q_OUT, Matrix& H_OUT, const index j) 
     std::cerr << "Divide by zero warning.";
     // std::exit(0);
   }
-  q_next = tlk::makeVecCopy(q_next, 1.0/H_OUT(j+1,j) );
+  q_next = (1.0/H_OUT(j+1,j)) * q_next;
 
   // for debugging
   std::cout << "\nnormalize the column vector q Complete\n";
@@ -69,29 +69,13 @@ void applyArnoldi(const Matrix& A, Matrix& Q_OUT, Matrix& H_OUT, const index j) 
 
 }
 
-void multiplyByQ(const Matrix& Q, const Vector& y, Vector& x_OUT) {
-  // this function performs the multiplication x = Q*y
-
-  // get size of m x n system x_n = Q_n*y_n
-  index m{ Q.size(0)   };
-  index n{ Q.size(1)-1 };
-
-  // multiply
-  for (index i{}; i < m; ++i) {
-    for (index j{}; j < n; ++j) {
-      x_OUT(i) += Q(i,j) * y(j);
-    }
-  }
-
-}
-
 void applyGMRES(Matrix& A_OUT, Vector& b_OUT, Vector& x_OUT) {
   // This function executes the GMRES method to solve the square linear system
   // Ax=b.
 
   // first, we get the size of the system
-  const index m{A_OUT.size(0)};
-  const index n_max{A_OUT.size(1)};
+  const index m{     A_OUT.size(0) };
+  const index n_max{ A_OUT.size(1) };
 
   // and we begin the iterative process with
   index n{1};
@@ -100,7 +84,7 @@ void applyGMRES(Matrix& A_OUT, Vector& b_OUT, Vector& x_OUT) {
   // We declare and initialize the residual vector r = b-Ax (but we assume x=0),
   // our scalar beta = ||r||_2, and the matries Q_{n+1} and H_n
   Vector r{m};
-  r =    tlk::makeVecCopy(b_OUT);
+  r =    b_OUT;
   double beta{ r.getNorm() };
   Matrix Q_np1{ m,  n+1};
   Matrix H_n  {n+1,  n };
@@ -157,12 +141,11 @@ void applyGMRES(Matrix& A_OUT, Vector& b_OUT, Vector& x_OUT) {
     // tlk::showVector(y);
 
     // take x_n = x_0 + Q_n*y = Q_n*y
-    multiplyByQ(Q_np1,y,x_OUT);
+    x_OUT = Q_np1*y;
 
     // for debugging
     std::cout << "\nQ*y multiplication Complete\n";
-    std::cout << "\nx_n\n";
-    x_OUT.show();
+    std::cout << "\nx_n\n" << x_OUT;
     std::cout << "\nn_max is = " << n_max << " so n < n_max = " << (n < n_max) << '\n';
 
     // check whether we have reached the theoretical max

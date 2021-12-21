@@ -72,9 +72,7 @@ void decompQR(Matrix& A_OUT, Vector& b_OUT, Vector& v_diag_OUT) {
 
     // apply Householder transformation to vector b as well
     double vTb{ tlk::innerProd(v_j,b_OUT) };
-    for (index i{}; i < m; ++i) {
-      b_OUT(i) -= 2*v_j(i)*vTb;
-    }
+    b_OUT = b_OUT - 2*v_j*vTb;
 
     // store the values of v_j for i > j in A_OUT to save memory
     for (index i{j+1}; i < m; ++i) {

@@ -52,9 +52,9 @@ void basicCG(const Matrix& A, const Vector& b, Vector& x_OUT) {
   // initialize residual r, initial conjugate vector p, and residual norm
   // we assume that the initial guess to the solution is x=0
   Vector r{m};
-  r = tlk::makeVecCopy(b);
+  r = b;
   Vector p{m};
-  p = tlk::makeVecCopy(b);
+  p = b;
   double r_norm{ r.getNorm() };
 
   // iterate until the residual falls within the desired accuracy
@@ -68,20 +68,20 @@ void basicCG(const Matrix& A, const Vector& b, Vector& x_OUT) {
 
     // store y = A*b to use in new residual and constant beta
     Vector y{m};
-    tlk::matVecMul(A,p,y);
+    y = A*p;
     // calculate alpha to minimize obj. func. along direction p
     double alpha{ tlk::innerProd(p,r)/tlk::innerProd(p,y) };
     // update solution vector x
-    x_OUT = tlk::updateVector(x_OUT,alpha,p);
+    x_OUT = x_OUT + alpha*p;
     // update residual vector to be
     // r = r - alpha*y = r - alpha*A*p = b - A*x - alpha*A*p = b - A*(x+alpha*p)
-    r = tlk::updateVector(r,-alpha,y);
+    r = r - alpha*y;
     // update the residual norm
     r_norm = r.getNorm();
     // calculate beta to obtain next conjugate vector p
     double beta{ -tlk::innerProd(r,y)/tlk::innerProd(p,y) };
     // get next conjugate vector
-    p = tlk::updateVector(r,beta,p);
+    p = r + beta*p;
     // keep track of # of iterations and throw error once they exceed the
     // theoretical maximum
     testMaxIter(iter_counter,m,step);
@@ -103,9 +103,9 @@ void smartCG(const Matrix& A, const Vector& b, Vector& x_OUT) {
   // initialize residual r, initial conjugate vector p, and (residual norm)^2
   // we assume that the initial guess to the solution is x=0
   Vector r{m};
-  r = tlk::makeVecCopy(b);
+  r = b;
   Vector p{m};
-  p = tlk::makeVecCopy(b);
+  p = b;
   double rTr{tlk::innerProd(r,r)}; // norm^2 = < r, r >
 
   // iterate until the residual falls within the desired accuracy
@@ -119,20 +119,20 @@ void smartCG(const Matrix& A, const Vector& b, Vector& x_OUT) {
 
     // store y = A*b to use in new residual and constant beta
     Vector y{m};
-    tlk::matVecMul(A,p,y);
+    y = A*p;
     // calculate alpha to minimize obj. func. along direction p
     double alpha{ rTr/tlk::innerProd(p,y) };
     // update solution vector x
-    x_OUT = tlk::updateVector(x_OUT,alpha,p);
+    x_OUT = x_OUT + alpha*p;
     // update residual vector to be
     // r = r - alpha*y = r - alpha*A*p = b - A*x - alpha*A*p = b - A*(x+alpha*p)
-    r = tlk::updateVector(r,-alpha,y);
+    r = r - alpha*y;
     // update (residual norm)^2
     double rTr_new{tlk::innerProd(r,r)};
     // calculate beta to obtain next conjugate vector p
     double beta{ rTr_new/rTr };
     // get next conjugate vector
-    p = tlk::updateVector(r,beta,p);
+    p = r + beta*p;
     // update the old inner product with the new
     rTr = rTr_new;
     // keep track of # of iterations and throw error once they exceed the
@@ -157,13 +157,13 @@ void smartPreCondCG(const Matrix& A, const Vector& b, Vector& x_OUT) {
   // we assume that the initial guess to the solution is x=0
   // initialize residual r
   Vector r{m};
-  r = tlk::makeVecCopy(b);
+  r = b;
   // compute z using preconditoner matrix
   Vector z{m};
   tlk::diagPreCond(A,r,z);
   // initialize conjugate vector p
   Vector p{m};
-  p = tlk::makeVecCopy(z);
+  p = z;
   // initialize "error" E = rTz = < r, z >
   double E{tlk::innerProd(r,z)};
 
@@ -178,14 +178,14 @@ void smartPreCondCG(const Matrix& A, const Vector& b, Vector& x_OUT) {
 
     // store y = A*b to use in new residual and constant beta
     Vector y{m};
-    tlk::matVecMul(A,p,y);
+    y = A*p;
     // calculate alpha to minimize obj. func. along direction p
     double alpha{ E/tlk::innerProd(p,y) };
     // update solution vector x
-    x_OUT = tlk::updateVector(x_OUT,alpha,p);
+    x_OUT = x_OUT + alpha*p;
     // update residual vector to be
     // r = r - alpha*y = r - alpha*A*p = b - A*x - alpha*A*p = b - A*(x+alpha*p)
-    r = tlk::updateVector(r,-alpha,y);
+    r = r - alpha*y;
     // update z vector
     tlk::diagPreCond(A,r,z);
     // update (residual norm)^2
@@ -193,7 +193,7 @@ void smartPreCondCG(const Matrix& A, const Vector& b, Vector& x_OUT) {
     // calculate beta to obtain next conjugate vector p
     double beta{ E_new/E };
     // get next conjugate vector
-    p = tlk::updateVector(z,beta,p);
+    p = z + beta*p;
     // update the old inner product with the new
     E = E_new;
     // keep track of # of iterations and throw error once they exceed the

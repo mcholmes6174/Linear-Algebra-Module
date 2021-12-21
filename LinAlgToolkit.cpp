@@ -86,16 +86,6 @@ namespace tlk {
     }
   }
 
-  void getError(const Matrix& A, const Vector& x, const Vector& b,
-                                                        Vector& err_OUT) {
-    // this function computes the error in the solution x to the system Ax=b
-    // once a solution has been found. It simply returns err = Ax-b.
-    // forward declaration necessary if we are to keep alphabetical order
-    void matVecMul(const Matrix&, const Vector&, Vector& y_OUT);
-    matVecMul(A,x,err_OUT);       // multiply A*x
-    err_OUT = err_OUT - b;        // subtract b
-  }
-
   double innerProd(const Vector& x, const Vector& y) {
     // this function returns the inner product of two Vector objects x and y.
     assert(x.size() == y.size());
@@ -104,41 +94,6 @@ namespace tlk {
       product += x(i)*y(i);
     }
     return product;
-  }
-
-  void matMul(const Matrix& A, const Matrix& B, Matrix& C_OUT) {
-    // this function performs the matrix multiplication C=AB.
-    assert(A.size(1) == B.size(0));
-    assert(A.size(0) == C_OUT.size(0));
-    assert(B.size(1) == C_OUT.size(1));
-    for (index i{}; i < A.size(0); ++i) {
-      for (index j{}; j < B.size(1); ++j) {
-        for (index k{}; k < B.size(0); ++k) {
-          C_OUT(i,j) += A(i,k) * B(k,j);
-        }
-      }
-    }
-  }
-
-  Vector makeVecCopy(const Vector& x, const double scalar=1.0) {
-    // this function returns the vector x after optionally being scaled.
-    index m{ x.size() };
-    Vector x_copy{m};
-    for (index i{}; i < m; ++i) {
-      x_copy(i) = scalar*x(i);
-    }
-    // we return by value here so that a copy is made automatically
-    return x_copy;
-  }
-
-  void matVecMul(const Matrix& A, const Vector& x, Vector& y_OUT) {
-    // this function performs the matrix-vector multiplication y=Ax.
-    assert(A.size(0) == y_OUT.size() && A.size(1) == x.size());
-    for (index i{}; i < A.size(0); ++i) {
-      for (index j{}; j < A.size(1); ++j) {
-        y_OUT(i) += A(i,j) * x(j);
-      }
-    }
   }
 
   void getCol(const index j, Matrix& A, Vector& x) {
@@ -170,14 +125,14 @@ namespace tlk {
     double placeholder{};
     // swap rows in matrix
     for (index k{}; k < A_OUT.size(1); ++k) {
-      placeholder     = A_OUT(r1,k);
+      placeholder = A_OUT(r1,k);
       A_OUT(r1,k) = A_OUT(r2,k);
       A_OUT(r2,k) = placeholder;
     }
     // swap rows in vector
-    placeholder   = b_OUT(r1);
-    b_OUT(r1) = b_OUT(r2);
-    b_OUT(r2) = placeholder;
+    placeholder = b_OUT(r1);
+    b_OUT(r1)   = b_OUT(r2);
+    b_OUT(r2)   = placeholder;
   }
 
   Matrix transpose(const Matrix& A) {
@@ -191,20 +146,6 @@ namespace tlk {
       }
     }
     return B;
-  }
-
-  Vector updateVector(const Vector& vec1, const double scalar,
-                                          const Vector& vec2) {
-    // This function returns the linear update x = vec1 + scalar*vec2.
-    // Here we choose to return by value (rather than pass x_OUT by reference)
-    // in order to increase readability.
-    assert(vec1.size() == vec2.size());
-    index  m{vec1.size()};
-    Vector x{m};
-    for (index i{}; i < m; ++i) {
-      x(i) = vec1(i) + scalar*vec2(i);
-    }
-    return x;
   }
 
 }

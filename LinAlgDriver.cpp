@@ -7,7 +7,7 @@
  * ConjugateGrad.cpp
  * GuassianElim.cpp
  * GMRES.cpp
- * Inout.cpp
+ * InOut.cpp
  * LinAlgToolkit.cpp
  * LSQ.cpp
  *
@@ -104,9 +104,9 @@ int main(int argc, char* argv[]) { // command line args will be 2 filenames
     case method_GaussElim: {
 
       pivotElim(A,b);
+      backSub(A,b,x);
       cout << "\nMatrix A after Gaussian Elimination with pivoting:" << A;
       cout << "\nVector b after Gaussian Elimination with pivoting:" << b;
-      backSub(A,b,x);
       break;
 
     }
@@ -154,10 +154,8 @@ int main(int argc, char* argv[]) { // command line args will be 2 filenames
   b.load(filename_b);
 
   // compute and show the error Ax-b to verify solution
-  Vector err{m};
-  tlk::getError(A,x,b,err);
   cout << "\nThe Euclidean norm of the error vector err = Ax-b is given by:";
-  cout << '\n' << err.getNorm() << '\n';
+  cout << '\n' << ((A*x)-b).getNorm() << '\n';
 
   cout << "\nGoodbye\n";
   cout << "*******************************************************************";

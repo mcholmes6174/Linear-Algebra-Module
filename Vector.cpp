@@ -152,7 +152,7 @@ Vector operator*(const double scalar, const Vector& x) {
   return scaled_x;
 }
 
-Vector operator*(Vector& x, const double scalar) {
+Vector operator*(const Vector& x, const double scalar) {
   // we want the scaling operation to be symmetric
   return scalar*x;
 }
@@ -176,7 +176,7 @@ std::ostream& operator<<(std::ostream& out, const Vector& x) {
       else {
         if (i == consts::max_out_size/2) out << "\n\t.\n\t.\n\t.";
         out << '\n' << std::setw(consts::dispPrec+2) << std::right
-                    << std::showpoint << x( x.size() - (i+1) );
+                    << std::showpoint << x( x.size() -consts::max_out_size +i );
       }
     }
   }
