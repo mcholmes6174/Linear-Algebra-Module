@@ -1,5 +1,5 @@
 // This file contains the implementations of the member functions for the
-// Matrix class
+// Matrix class as well as its operator overloading.
 #include "Constants.h"
 #include "LinAlgToolkit.h"
 #include "Matrix.h"
@@ -11,6 +11,10 @@
 #include <iomanip>
 #include <iostream>
 #include <string>
+
+//*****************************************************************************/
+// Here are Matrix member functions
+//*****************************************************************************/
 
 void Matrix::resize(const index m, const index n) {
   // to reset the size of the matrix
@@ -50,13 +54,10 @@ void Matrix::show() const {
 }
 
 void Matrix::load(const std::string filename) {
-  // this function reads the contents of "filename" and stores the data in
-  // the matrix A_OUT.
-  // we'll read from a file called "filename"
+  // to reads the contents of "filename" and store the data in m_mat[][]
   std::ifstream inf{filename};
-  // in case we cannot open the input file stream
   tlk::catchFileError(filename, !inf);
-  // get dimensions of matrix from file
+  // get size of matrix from file
   index m{};
   index n{};
   std::string strVal;
@@ -81,14 +82,9 @@ void Matrix::load(const std::string filename) {
 }
 
 void Matrix::write(const std::string filename) const {
-  // this function writes the contents of a matrix A into "filename"
-  //create a file
+  // to write the contents of m_mat[][] into "filename"
   std::ofstream outf{filename};
-  // in case we cannot open the output file stream
-  if (!outf) {
-    std::cerr << "\nError: soln.txt could not be opened for writing\n\n";
-    return;
-  }
+  tlk::catchFileError(filename, !outf);
   // get size of matrix
   index m{    m_mat.size() };
   index n{ m_mat[0].size() };
@@ -103,27 +99,26 @@ void Matrix::write(const std::string filename) const {
     }
     outf << '\n';
   }
-  // when outf goes out of scope, the ofstream destructor will close the file
 }
 
 //*****************************************************************************/
-// here are member functions for operator overloading
+// Here are Matrix member functions for operator overloading
 //*****************************************************************************/
 
 double& Matrix::operator()(const index i, const index j) {
-  // here we allow subscripting on our Matrix object
+  // to allow subscripting on our Matrix object
   assert(i < m_row && j < m_col);
   return m_mat[i][j];
 }
 
 double  Matrix::operator()(const index i, const index j) const {
-  // here we allow subscripting on *constant* Matrix objects
+  // to allow subscripting on *constant* Matrix objects
   assert(i < m_row && j < m_col);
   return m_mat[i][j];
 }
 
 // Matrix& Matrix::operator=(const Matrix& A) {
-//   // here we create an assignment operator
+//   // to create an assignment operator
 //   if (this == &A) return *this; // self-assignment guard
 //
 //   m_row = A.m_row;
@@ -134,11 +129,11 @@ double  Matrix::operator()(const index i, const index j) const {
 // }
 
 //*****************************************************************************/
-// here are regular functions for operator overloading
+// Here are normal functions for operator overloading
 //*****************************************************************************/
 
 Matrix operator-(const Matrix& A) {
-  // here we negate all the elements of a Matrix A
+  // to negate all the elements of a Matrix A
   Matrix minus_A{A.size(0),A.size(1)};
   for (index i{}; i < A.size(0); ++i) {
     for (index j{}; j < A.size(1); ++j) {
@@ -149,7 +144,7 @@ Matrix operator-(const Matrix& A) {
 }
 
 Matrix operator+(const Matrix& A, const Matrix& B) {
-  // here we take the componentwise sum of two Matrices A and B
+  // to take the componentwise sum of two Matrices A and B
   assert(A.size(0) == B.size(0) && A.size(1) == B.size(1));
   Matrix C{A.size(0),A.size(1)};
   for (index i{}; i < A.size(0); ++i) {
@@ -161,13 +156,13 @@ Matrix operator+(const Matrix& A, const Matrix& B) {
 }
 
 Matrix operator-(const Matrix& A, const Matrix& B) {
-  // here we take the componentwise difference of two Matrices A and B
+  // to take the componentwise difference of two Matrices A and B
   assert(A.size(0) == B.size(0) && A.size(1) == B.size(1));
   return A + (-B); // we can now use the Vector operators defined above
 }
 
 Matrix operator*(const double scalar, const Matrix& A) {
-  // here we scale a matrix
+  // to scale a matrix
   Matrix scaled_A{A.size(0), A.size(1)};
   for (index i{}; i < A.size(0); ++i) {
     for (index j{}; j < A.size(1); ++j) {
@@ -183,7 +178,7 @@ Matrix operator*(const Matrix& A, const double scalar) {
 }
 
 Vector operator*(const Matrix& A, const Vector& x) {
-  // here we perform matrix-vector multiplication
+  // to perform matrix-vector multiplication
   assert(A.size(1) == x.size());
   Vector y{x.size()};
   for (index i{}; i < x.size(); ++i) {
@@ -195,7 +190,7 @@ Vector operator*(const Matrix& A, const Vector& x) {
 }
 
 Matrix operator*(const Matrix& A, const Matrix& B) {
-  // here we perform matrix-matrix multiplication
+  // to perform matrix-matrix multiplication
   assert(A.size(1) == B.size(0));
   Matrix C{A.size(0), B.size(1)};
   for (index i{}; i < A.size(0); ++i) {
@@ -206,4 +201,78 @@ Matrix operator*(const Matrix& A, const Matrix& B) {
     }
   }
   return C;
+}
+
+std::ostream& operator<<(std::ostream& out, const Matrix& A) {
+  // to output Matrix objects easily
+  index m{A.size(0)};
+  index n{A.size(1)};
+  out << "\n" << std::setprecision(consts::dispPrec);
+
+  // show all or partial Matrix depending on its size
+  index max_size{ std::max(m, n) };
+  index min_size{ std::min(m, n) };
+
+  // if small enough, show as usual
+  if (max_size <= consts::max_out_size) {
+    for (index i{}; i < m; ++i) {
+      out << '\n';
+      for (index j{}; j < n; ++j) {
+        out << std::setw(consts::dispPrec+2) << std::right
+                                      << std::showpoint << A(i,j) << '\t';
+      }
+    }
+  }
+
+  // if not, we loop only over max_out_size-many elements and print by case
+  else if (min_size > consts::max_out_size) {
+    for (index i{}; i < consts::max_out_size; ++i) {
+      out << '\n';
+      for (index j{}; j < consts::max_out_size; ++j) {
+
+        // Case 1: upper left corner => print as usual
+        if (i < consts::max_out_size/2 && j < consts::max_out_size/2) {
+          out << std::setw(consts::dispPrec+2) << std::right
+              << std::showpoint << A(i,j) << '\t';
+        }
+        // Case 2: upper right corner => print as usual, but include "..."
+        //         between left and right blocks
+        else if (i < consts::max_out_size/2 && j >= consts::max_out_size/2) {
+          if (j == consts::max_out_size/2) out << ". . .\t";
+          out << std::setw(consts::dispPrec+2) << std::right << std::showpoint
+              << A( i, A.size(1)-(j+1) ) << '\t';
+        }
+        // Case 3: lower left corner => print as usual but include vertical
+        //         "..." between upper and lower blocks
+        else if (i >= consts::max_out_size/2 && j < consts::max_out_size/2) {
+          if (i == consts::max_out_size/2 && j == 0) {
+            for (index l{}; l < 3; ++l) {
+              out << '\t';
+              for (index k{}; k < consts::max_out_size; ++k) {
+                if (k == consts::max_out_size/2 - 1) {
+                  out << ".\t";
+                }
+                else if (k == consts::max_out_size/2) {
+                  if      (l == 0) out << ".    \t\t";
+                  else if (l == 1) out << "  .  \t\t";
+                  else             out << "    .\t\t";
+                }
+                else out << ".\t\t";
+              }
+              out << '\n';
+            }
+          }
+          out << std::setw(consts::dispPrec+2) << std::right << std::showpoint
+              << A( A.size(0)-(i+1), j ) << '\t';
+        }
+        // Case 4: lower right corner => print as usual
+        else {
+          if (j == consts::max_out_size/2) out << ". . .\t";
+          out << std::setw(consts::dispPrec+2) << std::right << std::showpoint
+              << A( A.size(0)-(i+1), A.size(1)-(j+1) ) << '\t';
+        }
+      }
+    }
+  }
+  return out << "\n"; // return std::ostream
 }

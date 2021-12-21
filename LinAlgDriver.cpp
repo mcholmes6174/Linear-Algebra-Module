@@ -79,17 +79,12 @@ int main(int argc, char* argv[]) { // command line args will be 2 filenames
   Vector x{n};
 
   // report the size of the matrix to the user
-  cout << "\nThe matrix contained in file " << filename_A
-       << " has size " << m << " by " << n << '\n';
+  cout << "\nThe matrix contained in file " << filename_A;
+  cout << " has size " << m << " by " << n << '\n';
 
-  // show the original system to the user if small enough
-  bool small_system{std::max(m,n) <= 8};
-  if  (small_system) {
-    cout << "\nHere is the matrix A:";
-    A.show();
-    cout << "\nHere is the vector b:";
-    b.show();
-  }
+  // show the system to the user
+  cout << "\nHere is the matrix A:" << A;
+  cout << "\nHere is the vector b:" << b;
 
   // ask user to choose numerical method
   int user_input{ inout::askMethodChoice(m,n) };
@@ -109,12 +104,8 @@ int main(int argc, char* argv[]) { // command line args will be 2 filenames
     case method_GaussElim: {
 
       pivotElim(A,b);
-      if (small_system) {
-        cout << "\nHere is matrix A after Gaussian Elimination with pivoting:";
-        A.show();
-        cout << "\nHere is vector b after Gaussian Elimination with pivoting:";
-        b.show();
-      }
+      cout << "\nMatrix A after Gaussian Elimination with pivoting:" << A;
+      cout << "\nVector b after Gaussian Elimination with pivoting:" << b;
       backSub(A,b,x);
       break;
 
@@ -152,11 +143,8 @@ int main(int argc, char* argv[]) { // command line args will be 2 filenames
     }
   }
 
-  // show the solution vector if system is small enough
-  if (small_system) {
-    cout << "\nThe solution vector x to the system is:";
-    x.show();
-  }
+  // show the solution vector
+  cout << "\nThe solution vector x to the system is:" << x;
 
   // write solution vector to file
   x.write(filename_x);

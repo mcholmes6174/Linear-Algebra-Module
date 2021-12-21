@@ -49,7 +49,7 @@ public:
 
   double  operator()(const index i) const;
 
-  Vector& operator=(const Vector& x);
+  // Vector& operator=(const Vector& x);
 
 };
 
@@ -65,5 +65,7 @@ Vector operator-(const Vector&, const Vector&);
 Vector operator*(const double,  const Vector&);
 
 Vector operator*(const Vector&, const double );
+
+std::ostream& operator<<(std::ostream&, const Vector&);
 
 #endif

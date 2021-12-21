@@ -1,5 +1,5 @@
 // This file contains the implementations of the member functions for the
-// Vector class
+// Vector class as well as its operator overloading.
 #include "Constants.h"
 #include "LinAlgToolkit.h"
 #include "Matrix.h"
@@ -12,6 +12,10 @@
 #include <iostream>
 #include <string>
 
+//*****************************************************************************/
+// Here are Vector member functions
+//*****************************************************************************/
+
 void Vector::resize(const index m) {
   // to reset the length of the vector
   m_row = m;
@@ -19,6 +23,7 @@ void Vector::resize(const index m) {
 }
 
 void Vector::normalize() {
+  // to normalize a vector
   double norm{ getNorm() };
   for (index i{}; i < m_vec.size(); ++i) {
     m_vec[i] /= norm;
@@ -47,11 +52,8 @@ double Vector::getNorm(const double p) const {
 }
 
 void Vector::load(const std::string filename) {
-  // this function reads the contents of "filename" and stores the data in
-  // the vector x_OUT.
-  // we'll read from a file called "filename"
+  // to reads the contents of "filename" and store the data in m_vec[]
   std::ifstream inf{filename};
-  // in case we cannot open the input file stream
   tlk::catchFileError(filename, !inf);
   // get length of vector from file
   index m{};
@@ -73,58 +75,51 @@ void Vector::load(const std::string filename) {
 }
 
 void Vector::write(const std::string filename) const {
-  // this function writes the contents of a vector x into "filename"
-  // create a file
+  // to write the contents of m_vec[] into "filename"
   std::ofstream outf{filename};
-  // in case we cannot open the output file stream
-  if (!outf) {
-    std::cerr << "\nError: soln.txt could not be opened for writing\n\n";
-    return;
-  }
-  // get length of vector and write into file
-  index m{m_vec.size()};
-  outf << m << '\n';
-  // write into the file
+  tlk::catchFileError(filename, !outf);
+  // record length of vector
+  outf << m_vec.size() << '\n';
+  // write contents into the file
   std::setprecision(consts::writePrec);
   for (auto v_i : m_vec) {
     outf << std::setw(consts::writePrec+2)
          << std::left << std::showpoint << v_i << '\n';
   }
-  // when outf goes out of scope, the ofstream destructor will close the file
 }
 
 //*****************************************************************************/
-// here we define member functions in order to perform operator overloading
+// Here are Vector member functions for operator overloading
 //*****************************************************************************/
 
 double& Vector::operator()(const index i) {
-  // here we allow subscripting on our vector objects
+  // to allow subscripting on our vector objects
   assert(i < m_row);
   return m_vec[i];
 }
 
 double  Vector::operator()(const index i) const {
-  // here we allow subscripting on our *constant* vector objects
+  // to allow subscripting on our *constant* vector objects
   assert(i < m_row);
   return m_vec[i];
 }
 
-Vector& Vector::operator=(const Vector& x) {
-  // here we create an assignment operator
-  if (this == &x) return *this; // self-assignment guard
-
-  m_row = x.m_row;
-  m_vec = x.m_vec;
-
-  return *this;
-}
+// Vector& Vector::operator=(const Vector& x) {
+//   // to create an assignment operator
+//   if (this == &x) return *this; // self-assignment guard
+//
+//   m_row = x.m_row;
+//   m_vec = x.m_vec;
+//
+//   return *this;
+// }
 
 //*****************************************************************************/
-// below we define *normal* functions in order to perform operator overloading
+// Here are normal functions for operator overloading
 //*****************************************************************************/
 
 Vector operator-(const Vector& x) {
-  // here we negate all the elements of a vector x
+  // to negate all the elements of a vector x
   Vector minus_x{x.size()};
   for (index i{}; i < x.size(); ++i) {
     minus_x(i) = -x(i);
@@ -133,7 +128,7 @@ Vector operator-(const Vector& x) {
 }
 
 Vector operator+(const Vector& x, const Vector& y) {
-  // here we take the componentwise sum of two vectors x and y
+  // to take the componentwise sum of two vectors x and y
   assert(x.size() == y.size());
   Vector z{x.size()};
   for (index i{}; i < x.size(); ++i) {
@@ -143,13 +138,13 @@ Vector operator+(const Vector& x, const Vector& y) {
 }
 
 Vector operator-(const Vector& x, const Vector& y) {
-  // here we take the componentwise difference of two vectors x and y
+  // to take the componentwise difference of two vectors x and y
   assert(x.size() == y.size());
   return x + (-y); // we can now use the Vector operators defined above
 }
 
 Vector operator*(const double scalar, const Vector& x) {
-  // here we scale a vector
+  // to scale a vector
   Vector scaled_x{x.size()};
   for (index i{}; i < x.size(); ++i) {
     scaled_x(i) = scalar*x(i);
@@ -160,4 +155,30 @@ Vector operator*(const double scalar, const Vector& x) {
 Vector operator*(Vector& x, const double scalar) {
   // we want the scaling operation to be symmetric
   return scalar*x;
+}
+
+std::ostream& operator<<(std::ostream& out, const Vector& x) {
+  // to output Vector objects easily
+  out << "\n" << std::setprecision(consts::dispPrec);
+  // show all or partial Vector depending on its length
+  if (x.size() < consts::max_out_size) {
+    for (index i{}; i < x.size(); ++i) {
+      out << '\n' << std::setw(consts::dispPrec+2) << std::right
+                  << std::showpoint << x(i);
+    }
+  }
+  else {
+    for (index i{}; i < consts::max_out_size; ++i) {
+      if (i < consts::max_out_size/2) {
+        out << '\n' << std::setw(consts::dispPrec+2) << std::right
+                    << std::showpoint << x(i);
+      }
+      else {
+        if (i == consts::max_out_size/2) out << "\n\t.\n\t.\n\t.";
+        out << '\n' << std::setw(consts::dispPrec+2) << std::right
+                    << std::showpoint << x( x.size() - (i+1) );
+      }
+    }
+  }
+  return out << "\n"; // return std::ostream
 }

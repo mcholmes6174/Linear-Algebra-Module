@@ -29,7 +29,7 @@ namespace tlk {
     // exception handling function for input file stream.
     try {
       if (open_failed) {
-        throw " could not be opened for reading\n\n";
+        throw " could not be opened\n\n";
       }
       else {
         return;

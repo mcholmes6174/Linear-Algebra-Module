@@ -49,4 +49,6 @@ Matrix operator-(const Matrix&, const Matrix&);
 
 Vector operator*(const Matrix&, const Vector&);
 
+std::ostream& operator<<(std::ostream&, const Matrix&);
+
 #endif
