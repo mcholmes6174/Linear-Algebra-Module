@@ -26,8 +26,8 @@ namespace inout {
       "Basic Conjugate-Gradient",
       "Smart Conjugate-Gradient",
       "Smart Diagonally-Preconditioned Conjugate-Gradient",
-      "Generalized Minimal Residual (GMRES)",
-      "Least Squares via QR decomposition (w/ Householder transformations)"
+      "Generalized Minimal Residual",
+      "Least Squares via QR decomposition (using Householder transformations)"
     };
     cout << '\n';
     for (int i{}; auto method : method_list) {
@@ -82,6 +82,7 @@ namespace inout {
       cout << "\nPlease choose a method to apply:";
       int n_methods{};
       n_methods = listMethods(); // returns total # of methods
+      cout << "Input integer: ";
       std::cin >> user_input;
 
       // make sure std::cin is robust
@@ -112,11 +113,11 @@ namespace inout {
       /*********** TEMPORARY CHECK WHILE GMRES IS BEING IMPLEMENTED ***********/
       /************************************************************************/
       // we comment this section out while we debug GMRES
-      if (user_input == 4) {
-        not_valid = true;
-        cout << "\nThe GMRES method is still being developed, please choose a"
-             << " different method.\n";
-      }
+      // if (user_input == 4) {
+      //   not_valid = true;
+      //   cout << "\nThe GMRES method is still being developed, please choose a"
+      //        << " different method.\n";
+      // }
       /************************************************************************/
       /************************************************************************/
       /************************************************************************/

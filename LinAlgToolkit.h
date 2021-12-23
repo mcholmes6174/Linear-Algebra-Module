@@ -32,11 +32,7 @@ namespace tlk {
 
   double innerProd(const Vector&, const Vector&);
 
-  void   getCol(const index j, Matrix& A, Vector& x);
-
   index  readNthVal(const std::string, const int);
-
-  void   swapRows(Matrix& A_OUT, Vector& b_OUT, const index, const index);
 
   // we return by value here to avoid resizing and additional transpositions
   Matrix transpose(const Matrix&);

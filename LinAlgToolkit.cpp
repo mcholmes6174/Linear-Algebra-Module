@@ -96,15 +96,6 @@ namespace tlk {
     return product;
   }
 
-  void getCol(const index j, Matrix& A, Vector& x) {
-    // This function gets the jth column from the matrix A and stores it in the
-    // vector x.
-    assert(A.size(0) == x.size());
-    for (index i{}; i < x.size(); ++i) {
-      x(i) = A(i,j);
-    }
-  }
-
   index readNthVal(const std::string filename, const int n) {
     // this function reads the nth value from the file "filename" and returns
     // it as type std::index. This function was created in order to read the
@@ -116,23 +107,6 @@ namespace tlk {
       inf >> strVal;
     }
     return static_cast<index>( std::stoi(strVal) );
-  }
-
-  void swapRows(Matrix& A_OUT, Vector& b_OUT, const index r1, const index r2) {
-    // This function swaps row1 and row2 of both the matrix A
-    // and vector b in the system Ax=b.
-    assert(A_OUT.size(0) == b_OUT.size());
-    double placeholder{};
-    // swap rows in matrix
-    for (index k{}; k < A_OUT.size(1); ++k) {
-      placeholder = A_OUT(r1,k);
-      A_OUT(r1,k) = A_OUT(r2,k);
-      A_OUT(r2,k) = placeholder;
-    }
-    // swap rows in vector
-    placeholder = b_OUT(r1);
-    b_OUT(r1)   = b_OUT(r2);
-    b_OUT(r2)   = placeholder;
   }
 
   Matrix transpose(const Matrix& A) {

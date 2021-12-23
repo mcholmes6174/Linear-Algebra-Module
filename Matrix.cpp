@@ -20,7 +20,11 @@ void Matrix::resize(const index m, const index n) {
   // to reset the size of the matrix
   m_row = m;
   m_col = n;
-  m_mat.resize(m_row,vec_t(m_col));
+  // m_mat.resize(m,vec_t(n)); // apparently this method doesn't work for resizing
+  m_mat.resize(m);
+  for (index i{}; i < m; ++i) {
+    m_mat[i].resize(n);
+  }
 }
 
 index Matrix::size(const int dim) const {
@@ -31,11 +35,37 @@ index Matrix::size(const int dim) const {
 }
 
 void Matrix::setCol(const index j, const Vector x) {
-  // to set the jth column of equal to a vector
+  // to set the jth column equal to a vector
   assert(m_row == x.size());
   for (index i{}; i < m_row; ++i) {
     m_mat[i][j] = x(i);
   }
+}
+
+void Matrix::setRow(const index i, const Vector x) {
+  // to set the ith row equal to a vector
+  assert(m_col == x.size());
+  for (index j{}; j < m_col; ++j) {
+    m_mat[i][j] = x(j);
+  }
+}
+
+Vector Matrix::getCol(const index j) {
+  // to extract the jth column as a Vector
+  Vector x{m_row};
+  for (index i{}; i < m_row; ++i) {
+    x(i) = m_mat[i][j];
+  }
+  return x;
+}
+
+Vector Matrix::getRow(const index i) {
+  // to extract the ith row as a Vector
+  Vector x{m_col};
+  for (index j{}; j < m_col; ++j) {
+    x(j) = m_mat[i][j];
+  }
+  return x;
 }
 
 void Matrix::show() const {

@@ -25,6 +25,12 @@ public:
 
   void    setCol(const index j, const Vector x);
 
+  void    setRow(const index i, const Vector x);
+
+  Vector  getCol(const index j);
+
+  Vector  getRow(const index i);
+
   void    show() const;
 
   void    load(const std::string filename);

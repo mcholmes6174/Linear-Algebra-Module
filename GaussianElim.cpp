@@ -26,24 +26,30 @@ void pivotElim(Matrix& A_OUT, Vector& b_OUT) {
 
     // search for better pivot (p) than current pivot (j)
     index p{j}; // index of pivot row
-    for (auto k{j+1}; k < m; ++k) {
+    for (index k{j+1}; k < m; ++k) {
       if (std::abs(A_OUT(k,j)) > std::abs(A_OUT(p,j))) p = k;
     }
 
     // if better pivot (p) is found, then swap rows j and p IN ENTIRE SYSTEM
-    if (p != j) tlk::swapRows(A_OUT,b_OUT,j,p);
+    if (p != j) {
+      Vector placeholder1{A_OUT.size(1)};
+      placeholder1 = A_OUT.getRow(j);
+      A_OUT.setRow(j, A_OUT.getRow(p) );
+      A_OUT.setRow(p, placeholder1 );
+      double placeholder2{ b_OUT(j) };
+      b_OUT(j) = b_OUT(p);
+      b_OUT(p) = placeholder2;
+    }
 
     // if pivot is still zero, then matrix must be singular
     tlk::catchSingular(A_OUT(j,j));
 
     // if pivot is nonzero, then we loop over rows below row j
-    for (auto i{j+1}; i<m; ++i) {
+    for (index i{j+1}; i < m; ++i) {
 
       // for each row, we perform the Guassian Elimination row operation
       double scalar{ A_OUT(i,j)/A_OUT(j,j) };
-      for (index k{}; k < n; ++k) {
-        A_OUT(i,k) -= A_OUT(j,k)*scalar;
-      }
+      A_OUT.setRow(i, A_OUT.getRow(i) - A_OUT.getRow(j)*scalar );
 
       // repreat the row operation to vector b to ensure an equivalent system
       b_OUT(i) -= b_OUT(j)*scalar;

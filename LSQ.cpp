@@ -59,7 +59,7 @@ void decompQR(Matrix& A_OUT, Vector& b_OUT, Vector& v_diag_OUT) {
 
       // get kth column vector of A
       Vector a_k{m};
-      tlk::getCol(k,A_OUT,a_k);
+      a_k = A_OUT.getCol(k);
 
       // get inner product < v_j, a_k >
       // and subtract 2*(vv^T)*A from kth column of A
